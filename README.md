@@ -1,4 +1,4 @@
-# mitho_bakery
+# Handicraft_online_store
 
 A new Flutter project.
 
