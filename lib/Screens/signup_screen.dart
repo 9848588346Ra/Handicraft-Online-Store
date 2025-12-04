@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
-class CreateAccountScreen extends StatefulWidget {
+class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
   @override
-  State<CreateAccountScreen> createState() => _CreateAccountScreenState();
+  State<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _CreateAccountScreenState extends State<CreateAccountScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController nameController = TextEditingController();
   TextEditingController surnameController = TextEditingController();
   TextEditingController birthdateController = TextEditingController();
@@ -65,7 +67,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
               SizedBox(height: 20),
 
-              // ⭐ USER ID (updated section)
+
               buildLabel("USER ID"),
               buildField(
                 userIdController,
