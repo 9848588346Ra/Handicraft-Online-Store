@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mitho_bakery/DatabaseHelper/Database_Helper.dart';
+// NOTE: Adjust the import path below if your DatabaseHelper is in a different directory
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -8,13 +10,76 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  // Global key to manage and validate the form state
+  final _formKey = GlobalKey<FormState>();
+
   TextEditingController nameController = TextEditingController();
   TextEditingController surnameController = TextEditingController();
   TextEditingController birthdateController = TextEditingController();
-  TextEditingController userIdController = TextEditingController(); // <- updated
+  TextEditingController userIdController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   bool showPassword = false;
+
+  @override
+  void dispose() {
+    // Dispose controllers to free up memory
+    nameController.dispose();
+    surnameController.dispose();
+    birthdateController.dispose();
+    userIdController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  // Function to handle form submission and database insertion
+  void _signUpUser() async {
+    // 1. Validate all fields in the form
+    if (_formKey.currentState!.validate()) {
+      
+      // Data collection
+      final name = nameController.text;
+      final surname = surnameController.text;
+      final birthdate = birthdateController.text;
+      final userId = userIdController.text;
+      final password = passwordController.text;
+
+      // Instantiate the database helper
+      final dbHelper = DatabaseHelper();
+      
+      try {
+        // 2. Call the insert method
+        int id = await dbHelper.insertUser(
+          name,
+          surname,
+          birthdate,
+          userId,
+          password,
+        );
+        
+        // Success feedback
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Account created successfully for User ID: $userId (DB ID: $id)')),
+          );
+          // Optionally, navigate away or clear fields
+          // Navigator.pop(context); 
+        }
+
+      } catch (e) {
+        // Handle database errors (e.g., if User ID is set to UNIQUE and already exists)
+        print('Error registering user: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Registration failed. The User ID might already be taken.')),
+          );
+        }
+      }
+    } else {
+      // Validation failed feedback
+      print('Form is invalid. Please fill all required fields.');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,111 +88,123 @@ class _SignUpScreenState extends State<SignUpScreen> {
       resizeToAvoidBottomInset: true,
 
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+        // Wrap content in a Form widget for validation
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
 
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Back + Title
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back_ios_new),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                  Text(
-                    "Create Account",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Back + Title
+                Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back_ios_new),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Text(
+                      "Create Account",
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 20),
+
+                buildLabel("NAME"),
+                buildFormField(nameController, "Enter your name"),
+
+                SizedBox(height: 20),
+
+                buildLabel("SURNAME"),
+                buildFormField(surnameController, "Enter your surname"),
+
+                SizedBox(height: 20),
+
+                buildLabel("BIRTHDATE"),
+                buildFormField(
+                  birthdateController,
+                  "mm/dd/yyy",
+                  inputType: TextInputType.datetime,
+                ),
+
+                SizedBox(height: 20),
+
+
+                buildLabel("USER ID"),
+                buildFormField(
+                  userIdController,
+                  "Enter your user ID",
+                  inputType: TextInputType.text,
+                ),
+
+                SizedBox(height: 20),
+
+                buildLabel("PASSWORD"),
+                TextFormField(
+                  controller: passwordController,
+                  obscureText: !showPassword,
+                  decoration: InputDecoration(
+                    hintText: "Enter your password",
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        showPassword ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          showPassword = !showPassword;
+                        });
+                      },
                     ),
                   ),
-                ],
-              ),
+                  // Validation for password
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Password is required.';
+                    }
+                    return null;
+                  },
+                ),
 
-              SizedBox(height: 20),
+                SizedBox(height: 40),
 
-              buildLabel("NAME"),
-              buildField(nameController, "Enter your name"),
-
-              SizedBox(height: 20),
-
-              buildLabel("SURNAME"),
-              buildField(surnameController, "Enter your surname"),
-
-              SizedBox(height: 20),
-
-              buildLabel("BIRTHDATE"),
-              buildField(
-                birthdateController,
-                "mm/dd/yyy",
-                inputType: TextInputType.datetime,
-              ),
-
-              SizedBox(height: 20),
-
-
-              buildLabel("USER ID"),
-              buildField(
-                userIdController,
-                "Enter your user ID",
-                inputType: TextInputType.text,
-              ),
-
-              SizedBox(height: 20),
-
-              buildLabel("PASSWORD"),
-              TextField(
-                controller: passwordController,
-                obscureText: !showPassword,
-                decoration: InputDecoration(
-                  hintText: "Enter your password",
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      showPassword ? Icons.visibility : Icons.visibility_off,
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[700],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        showPassword = !showPassword;
-                      });
-                    },
+                    // Call the submission function
+                    onPressed: _signUpUser, 
+                    child: Text(
+                      "Next",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
-              ),
 
-              SizedBox(height: 40),
-
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[700],
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                  ),
-                  onPressed: () {},
-                  child: Text(
-                    "Next",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 20),
-            ],
+                SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // Reusable Label
+  // Reusable Label Widget
   Widget buildLabel(String text) {
     return Text(
       text,
@@ -138,15 +215,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  // Reusable Input Field
-  Widget buildField(TextEditingController controller, String hint,
+  // Reusable Form Field Widget with Validation
+  Widget buildFormField(TextEditingController controller, String hint,
       {TextInputType inputType = TextInputType.text}) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       keyboardType: inputType,
       decoration: InputDecoration(
         hintText: hint,
       ),
+      // Validation to ensure the field is not empty
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return '$hint cannot be empty';
+        }
+        return null;
+      },
     );
   }
 }
