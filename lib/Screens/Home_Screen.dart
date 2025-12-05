@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
-// Define the custom colors used in the design
 const Color primaryPurple = Color(0xFF5E35B1);
 const Color customRed = Color(0xFFE53935);
-const Color lightBlue = Color(0xFFB3E5FC); // Placeholder for the light blue background/accents
+const Color lightBlue = Color(0xFFB3E5FC); 
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -13,13 +12,10 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       // 1. AppBar
       appBar: AppBar(
-        // Centering the title to match the image layout
         centerTitle: true,
-        // Remove the back button, as this is the home screen
         automaticallyImplyLeading: false, 
         title: Column(
           children: [
-            // Placeholder for the Logo Image (e.g., the sheep/ram logo)
             Container(
               height: 40,
               width: 40,
@@ -42,7 +38,6 @@ class HomeScreen extends StatelessWidget {
             ),
           ],
         ),
-        // No actions needed in the top right for this design
         actions: const [SizedBox(width: 50)], 
       ),
 
