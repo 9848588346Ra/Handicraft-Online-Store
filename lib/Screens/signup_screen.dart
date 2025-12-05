@@ -12,7 +12,8 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  TextEditingController userIdController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool showPassword = false;
 
@@ -20,10 +21,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (_formKey.currentState!.validate()) {
       final prefs = await SharedPreferences.getInstance();
 
-      await prefs.setString("userId", userIdController.text);
+      await prefs.setString("name", nameController.text);
+      await prefs.setString("email", emailController.text);
       await prefs.setString("password", passwordController.text);
 
-      // Save login state
       await prefs.setBool("isLoggedIn", true);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -41,52 +42,101 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("Create Account",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Back button
+              IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "Create Account",
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 40),
 
-                const SizedBox(height: 20),
-                const Text("USER ID"),
-                TextFormField(
-                  controller: userIdController,
-                  validator: (value) =>
-                      value!.isEmpty ? "Enter User ID" : null,
+              // NAME
+              const Text(
+                "NAME",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  hintText: "Enter your name",
+                  border: UnderlineInputBorder(),
                 ),
+                validator: (value) =>
+                    value!.isEmpty ? "Enter Name" : null,
+              ),
+              const SizedBox(height: 20),
 
-                const SizedBox(height: 20),
-                const Text("PASSWORD"),
-                TextFormField(
-                  controller: passwordController,
-                  obscureText: !showPassword,
-                  validator: (value) =>
-                      value!.isEmpty ? "Enter Password" : null,
-                  decoration: InputDecoration(
-                    suffixIcon: IconButton(
-                      icon: Icon(showPassword
-                          ? Icons.visibility
-                          : Icons.visibility_off),
-                      onPressed: () {
-                        setState(() {
-                          showPassword = !showPassword;
-                        });
-                      },
-                    ),
+              // EMAIL
+              const Text(
+                "EMAIL",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              TextFormField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  hintText: "Enter your email",
+                  border: UnderlineInputBorder(),
+                ),
+                validator: (value) =>
+                    value!.isEmpty ? "Enter Email" : null,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 30),
+
+              // PASSWORD
+              const Text(
+                "PASSWORD",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              TextFormField(
+                controller: passwordController,
+                obscureText: !showPassword,
+                decoration: InputDecoration(
+                  hintText: "Enter your password",
+                  border: const UnderlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                        showPassword ? Icons.visibility : Icons.visibility_off),
+                    onPressed: () {
+                      setState(() {
+                        showPassword = !showPassword;
+                      });
+                    },
                   ),
                 ),
+                validator: (value) =>
+                    value!.isEmpty ? "Enter Password" : null,
+              ),
+              const SizedBox(height: 50),
 
-                const SizedBox(height: 40),
-                ElevatedButton(
+              // NEXT BUTTON
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
                   onPressed: _signUpUser,
-                  child: const Text("Next"),
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25)),
+                  ),
+                  child: const Text(
+                    "Next",
+                    style: TextStyle(fontSize: 18),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
