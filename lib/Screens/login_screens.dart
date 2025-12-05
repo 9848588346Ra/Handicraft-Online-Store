@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'home_screen.dart';
+import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,6 +22,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (idController.text == savedId &&
         passController.text == savedPass) {
+
+      await prefs.setBool("isLoggedIn", true);
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -35,34 +39,144 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Login",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-              SizedBox(height: 20),
-
-              TextField(
-                controller: idController,
-                decoration: InputDecoration(labelText: "User ID"),
+              // Back Button + Title Row
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Icon(Icons.arrow_back_ios, size: 22, color: Colors.black87),
+                  const SizedBox(width: 8),
+                  const Text(
+                    "Continue with E-mail",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  )
+                ],
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 35),
 
+              // EMAIL LABEL
+              const Text(
+                "E-MAIL",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // EMAIL INPUT
+              TextField(
+                controller: idController,
+                decoration: InputDecoration(
+                  hintText: "Enter your email",
+                  suffixIcon: idController.text.isNotEmpty
+                      ? GestureDetector(
+                          onTap: () => setState(() => idController.clear()),
+                          child: const Icon(Icons.close, color: Colors.grey),
+                        )
+                      : null,
+                  enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.green)),
+                  focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.green)),
+                ),
+                onChanged: (v) => setState(() {}),
+              ),
+
+              const SizedBox(height: 30),
+
+              // PASSWORD LABEL
+              const Text(
+                "PASSWORD",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1,
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // PASSWORD INPUT
               TextField(
                 controller: passController,
                 obscureText: true,
-                decoration: InputDecoration(labelText: "Password"),
+                decoration: const InputDecoration(
+                  hintText: "Enter your password",
+                  enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey)),
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.green)),
+                ),
               ),
 
-              SizedBox(height: 40),
+              const SizedBox(height: 12),
 
-              ElevatedButton(
-                onPressed: _loginUser,
-                child: Text("Login"),
-              )
+              // FORGOT PASSWORD
+              const Text(
+                "I forgot my password",
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 15,
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // CREATE ACCOUNT TEXT BUTTON
+              Center(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const SignUpScreen()),
+                    );
+                  },
+                  child: const Text(
+                    "Don’t have account? Let’s create!",
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // NEXT BUTTON
+              Center(
+                child: GestureDetector(
+                  onTap: _loginUser,
+                  child: Container(
+                    width: double.infinity,
+                    height: 55,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade600,
+                      borderRadius: BorderRadius.circular(40),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        "Next",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

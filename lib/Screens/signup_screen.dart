@@ -20,15 +20,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (_formKey.currentState!.validate()) {
       final prefs = await SharedPreferences.getInstance();
 
-      // Save user ID & password locally
       await prefs.setString("userId", userIdController.text);
       await prefs.setString("password", passwordController.text);
+
+      // Save login state
+      await prefs.setBool("isLoggedIn", true);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Account created successfully")),
       );
 
-      // Navigate to HomeScreen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -43,23 +44,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
         child: Form(
           key: _formKey,
           child: Padding(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Create Account",
+                const Text("Create Account",
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
 
-                SizedBox(height: 20),
-                Text("USER ID"),
+                const SizedBox(height: 20),
+                const Text("USER ID"),
                 TextFormField(
                   controller: userIdController,
                   validator: (value) =>
                       value!.isEmpty ? "Enter User ID" : null,
                 ),
 
-                SizedBox(height: 20),
-                Text("PASSWORD"),
+                const SizedBox(height: 20),
+                const Text("PASSWORD"),
                 TextFormField(
                   controller: passwordController,
                   obscureText: !showPassword,
@@ -79,10 +80,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
 
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 ElevatedButton(
                   onPressed: _signUpUser,
-                  child: Text("Next"),
+                  child: const Text("Next"),
                 ),
               ],
             ),
