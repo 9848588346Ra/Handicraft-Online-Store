@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mitho_bakery/DatabaseHelper/Database_Helper.dart';
-// NOTE: Adjust the import path below if your DatabaseHelper is in a different directory
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -10,7 +9,6 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  // Global key to manage and validate the form state
   final _formKey = GlobalKey<FormState>();
 
   TextEditingController nameController = TextEditingController();
@@ -32,9 +30,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  // Function to handle form submission and database insertion
   void _signUpUser() async {
-    // 1. Validate all fields in the form
     if (_formKey.currentState!.validate()) {
       
       // Data collection
@@ -44,11 +40,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
       final userId = userIdController.text;
       final password = passwordController.text;
 
-      // Instantiate the database helper
       final dbHelper = DatabaseHelper();
       
       try {
-        // 2. Call the insert method
         int id = await dbHelper.insertUser(
           name,
           surname,
@@ -62,12 +56,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Account created successfully for User ID: $userId (DB ID: $id)')),
           );
-          // Optionally, navigate away or clear fields
-          // Navigator.pop(context); 
+
         }
 
       } catch (e) {
-        // Handle database errors (e.g., if User ID is set to UNIQUE and already exists)
         print('Error registering user: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -76,7 +68,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
         }
       }
     } else {
-      // Validation failed feedback
       print('Form is invalid. Please fill all required fields.');
     }
   }
@@ -88,7 +79,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       resizeToAvoidBottomInset: true,
 
       body: SafeArea(
-        // Wrap content in a Form widget for validation
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -204,7 +194,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  // Reusable Label Widget
+
   Widget buildLabel(String text) {
     return Text(
       text,
