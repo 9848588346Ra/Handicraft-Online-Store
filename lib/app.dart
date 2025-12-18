@@ -1,6 +1,7 @@
 //widget
 // stless
 import 'package:flutter/material.dart';
+import 'package:mitho_bakery/Screens/Home_Screen.dart';
 import 'package:mitho_bakery/Screens/welcome.dart';
 
 class App extends StatelessWidget {
@@ -9,7 +10,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: WelcomeScreen()
+      home: HomeScreen()
     );
    } // Material app
 }
