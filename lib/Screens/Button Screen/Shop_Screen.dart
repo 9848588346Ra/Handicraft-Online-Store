@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 const Color primaryPurple = Color(0xFF5E35B1);
 const Color customRed = Color(0xFFE53935);
-const Color lightBlue = Color(0xFFB3E5FC); 
+const Color lightBlue = Color.fromARGB(255, 253, 254, 255);
 
 class ShopScreen extends StatelessWidget {
   const ShopScreen({super.key});
@@ -10,66 +10,67 @@ class ShopScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // 1. AppBar
-      appBar: AppBar(
-        centerTitle: true,
-        automaticallyImplyLeading: false, 
-        title: Column(
-          children: [
-            Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                color: lightBlue,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Center(
-                child: Icon(Icons.palette, color: primaryPurple),
-              ),
-            ),
-            const Text(
-              'HANDICRAFT ONLINE STORE',
-              style: TextStyle(
-                fontSize: 8,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 0.5,
-                color: primaryPurple,
-              ),
-            ),
-          ],
+      // ================= APP BAR =================
+appBar: AppBar(
+  centerTitle: true,
+  automaticallyImplyLeading: false,
+  title: Column(
+    children: [
+      Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          color: lightBlue,
+          borderRadius: BorderRadius.circular(20),
         ),
-        actions: const [SizedBox(width: 50)], 
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: Image.asset(
+            'assets/images/image 8.png',
+            fit: BoxFit.cover,
+          ),
+        ),
       ),
+      const SizedBox(height: 4),
+      const Text(
+        'HANDICRAFT ONLINE STORE',
+        style: TextStyle(
+          fontSize: 8,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 0.5,
+          color: primaryPurple,
+        ),
+      ),
+    ],
+  ),
+),
 
-      // 2. Body Content (Scrollable)
+      // ================= BODY =================
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            const SizedBox(height: 10),
+          children: [
 
-            // --- A. Christmas Offer Banner / Slider ---
+            const SizedBox(height: 12),
+
+            // ================= BANNER =================
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: AspectRatio(
-                aspectRatio: 16 / 6, // Approximate aspect ratio of the banner image
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300], // Placeholder color
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  alignment: Alignment.center,
-                  child: const Text(
-                    'Christmas Offer Banner\n(Image Placeholder)',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.black54),
+                aspectRatio: 16 / 6,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(
+                    'assets/images/Felting-Shoe-upper2.jpg',
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
             ),
+
             const SizedBox(height: 10),
-            
-            // Placeholder for Page Indicator Dots
+
+            // ================= DOT INDICATOR =================
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -81,132 +82,116 @@ class ShopScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // --- B. Exclusive Offer Section Header ---
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Exclusive Offer',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  Text(
-                    'See all',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: primaryPurple.withOpacity(0.8), // Use a slightly transparent primary color
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 15),
+            // ================= EXCLUSIVE OFFER =================
+            _sectionHeader('Exclusive Offer'),
 
-            // --- C. Exclusive Offer Product List (Horizontal Scroll) ---
+            const SizedBox(height: 12),
+
             SizedBox(
-              height: 220, // Height for the horizontal list items
+              height: 230,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: const [
-                  ProductCardPlaceholder(
+                  ProductCard(
                     title: 'Felt Dogs',
-                    price: '\$ 10',
+                    price: '\$10',
+                    imagePath: 'assets/images/imageh2.webp',
                   ),
                   SizedBox(width: 15),
-                  ProductCardPlaceholder(
+                  ProductCard(
                     title: 'Felt Cats',
-                    price: '\$ 20',
+                    price: '\$20',
+                    imagePath: 'assets/images/imageh3.webp',
                   ),
                   SizedBox(width: 15),
-                  ProductCardPlaceholder(
-                    title: 'Other Item',
-                    price: '\$ 15',
+                  ProductCard(
+                    title: 'Handmade Item',
+                    price: '\$15',
+                    imagePath: 'assets/images/imageh4.webp',
                   ),
-                  SizedBox(width: 15),
                 ],
               ),
             ),
 
             const SizedBox(height: 30),
-            
-            // --- D. Best Selling Section Header ---
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Best Selling',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  Text(
-                    'See all',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: primaryPurple.withOpacity(0.8),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 15),
 
-            // --- E. Best Selling Product List (Horizontal Scroll) ---
+            // ================= BEST SELLING =================
+            _sectionHeader('Best Selling'),
+
+            const SizedBox(height: 12),
+
             SizedBox(
-              height: 220,
+              height: 230,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: const [
-                  ProductCardPlaceholder(
+                  ProductCard(
                     title: 'Ornaments',
-                    price: '\$ 8',
-                    showImageOnly: true, // Example for different card style
+                    price: '\$8',
+                    imagePath: 'assets/images/imageh5.webp',
+                    showImageOnly: true,
                   ),
                   SizedBox(width: 15),
-                  ProductCardPlaceholder(
+                  ProductCard(
                     title: 'Elf Head',
-                    price: '\$ 12',
+                    price: '\$12',
+                    imagePath: 'assets/images/imageh6.avif',
                     showImageOnly: true,
                   ),
                   SizedBox(width: 15),
-                  ProductCardPlaceholder(
+                  ProductCard(
                     title: 'Wreath',
-                    price: '\$ 25',
+                    price: '\$25',
+                    imagePath: 'assets/images/imageh7.jpg',
                     showImageOnly: true,
                   ),
-                  SizedBox(width: 15),
                 ],
               ),
             ),
-            const SizedBox(height: 20), // Extra space at the bottom
+
+            const SizedBox(height: 30),
           ],
         ),
       ),
     );
   }
 
-  // Helper function for the dot indicator
+  // ================= SECTION HEADER =================
+  Widget _sectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            'See all',
+            style: TextStyle(
+              fontSize: 16,
+              color: primaryPurple.withOpacity(0.8),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ================= DOT =================
   Widget _buildDot(bool isActive) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
-      margin: const EdgeInsets.symmetric(horizontal: 4.0),
-      height: 6.0,
-      width: isActive ? 20.0 : 6.0,
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      height: 6,
+      width: isActive ? 20 : 6,
       decoration: BoxDecoration(
         color: isActive ? primaryPurple : Colors.grey.shade300,
         borderRadius: BorderRadius.circular(3),
@@ -215,93 +200,90 @@ class ShopScreen extends StatelessWidget {
   }
 }
 
-// --- Placeholder Widget for Product Cards ---
-class ProductCardPlaceholder extends StatelessWidget {
+// ================= PRODUCT CARD =================
+class ProductCard extends StatelessWidget {
   final String title;
   final String price;
+  final String imagePath;
   final bool showImageOnly;
 
-  const ProductCardPlaceholder({
+  const ProductCard({
     super.key,
     required this.title,
     required this.price,
+    required this.imagePath,
     this.showImageOnly = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 150, // Fixed width for the cards
+      width: 150,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
         boxShadow: const [
           BoxShadow(
             color: Colors.black12,
-            blurRadius: 5,
-            offset: Offset(0, 2),
+            blurRadius: 6,
+            offset: Offset(0, 3),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          // Placeholder for the Product Image
+        children: [
+
+          // PRODUCT IMAGE
           Expanded(
-            child: Container(
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.grey[200], // Image background color
-                borderRadius: BorderRadius.circular(10),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Image.asset(
+                imagePath,
+                fit: BoxFit.cover,
+                width: double.infinity,
               ),
-              alignment: Alignment.center,
-              child: Icon(Icons.image, size: 50, color: Colors.grey[400]),
             ),
           ),
 
-          // Product details (only for the 'Exclusive Offer' style)
           if (!showImageOnly)
             Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         price,
                         style: const TextStyle(
-                          fontWeight: FontWeight.bold,
                           fontSize: 18,
+                          fontWeight: FontWeight.bold,
                           color: primaryPurple,
                         ),
                       ),
-                      // Add to Cart Button
                       InkWell(
                         onTap: () {
-                          print('Added $title to cart');
+                          debugPrint('Added $title');
                         },
                         child: Container(
-                          padding: const EdgeInsets.all(5),
+                          padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
                             color: primaryPurple,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.white,
-                          ),
+                          child: const Icon(Icons.add, color: Colors.white),
                         ),
                       ),
                     ],
