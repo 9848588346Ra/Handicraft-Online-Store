@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mitho_bakery/Screens/Button%20Screen/Shop_Screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'home_screen.dart';
+
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -33,7 +34,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => const ShopScreen()),
       );
     }
   }

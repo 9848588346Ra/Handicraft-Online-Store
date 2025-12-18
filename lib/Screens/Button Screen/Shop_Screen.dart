@@ -4,8 +4,8 @@ const Color primaryPurple = Color(0xFF5E35B1);
 const Color customRed = Color(0xFFE53935);
 const Color lightBlue = Color(0xFFB3E5FC); 
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class ShopScreen extends StatelessWidget {
+  const ShopScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -196,35 +196,6 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 20), // Extra space at the bottom
           ],
         ),
-      ),
-
-      // 3. BottomNavigationBar
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed, // Ensures all items are visible
-        selectedItemColor: primaryPurple,
-        unselectedItemColor: Colors.grey,
-        currentIndex: 0, // 'Shop' is the current active item
-        onTap: (index) {
-          // Handle navigation here
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.storefront),
-            label: 'Shop',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.travel_explore),
-            label: 'Explore',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Cart',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Account',
-          ),
-        ],
       ),
     );
   }
