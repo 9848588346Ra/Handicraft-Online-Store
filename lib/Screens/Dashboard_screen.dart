@@ -17,9 +17,10 @@ class _BottomNavigationScreenState extends State<DashboardScreen> {
 
   List<Widget> lstBottomScreen = [
    const ShopScreen(),
-   const CartScreen(),  
+   const CartScreen(),
+   const ExploreScreen(),  
    const AccountScreen(),
-  const ExploreScreen(),
+  
   ];
   @override
   Widget build(BuildContext context) {

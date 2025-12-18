@@ -8,7 +8,7 @@ class ExploreScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Cart Screen",
+          "Explore Screen",
           style: TextStyle(
             fontFamily: "open sans bold",
           ),
@@ -18,7 +18,7 @@ class ExploreScreen extends StatelessWidget {
       ),
       body: Center(
         child: Text(
-          "Cart Screen",
+          "Explore Screen",
           style: TextStyle(
             fontSize: 24,
             fontFamily: "open sans bold",
