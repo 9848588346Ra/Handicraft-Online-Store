@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// App color scheme
 const Color primaryPurple = Color(0xFF5E35B1);
 const Color customRed = Color(0xFFE53935);
 const Color lightBlue = Color.fromARGB(255, 253, 254, 255);
@@ -10,50 +11,51 @@ class ShopScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ================= APP BAR =================
-appBar: AppBar(
-  centerTitle: true,
-  automaticallyImplyLeading: false,
-  title: Column(
-    children: [
-      Container(
-        height: 40,
-        width: 40,
-        decoration: BoxDecoration(
-          color: lightBlue,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Image.asset(
-            'assets/images/image 8.png',
-            fit: BoxFit.cover,
-          ),
+      // Top navigation bar with logo and store name
+      appBar: AppBar(
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+        title: Column(
+          children: [
+            // Store logo container
+            Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                color: lightBlue,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  'assets/images/image 8.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            // Store name text
+            const Text(
+              'HANDICRAFT ONLINE STORE',
+              style: TextStyle(
+                fontSize: 8,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+                color: primaryPurple,
+              ),
+            ),
+          ],
         ),
       ),
-      const SizedBox(height: 4),
-      const Text(
-        'HANDICRAFT ONLINE STORE',
-        style: TextStyle(
-          fontSize: 8,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 0.5,
-          color: primaryPurple,
-        ),
-      ),
-    ],
-  ),
-),
 
-      // ================= BODY =================
+      // Main content area
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-
             const SizedBox(height: 12),
 
-            // ================= BANNER =================
+            // Featured banner image showcasing handicraft products
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: AspectRatio(
@@ -70,7 +72,7 @@ appBar: AppBar(
 
             const SizedBox(height: 10),
 
-            // ================= DOT INDICATOR =================
+            // Carousel navigation dots
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -82,11 +84,12 @@ appBar: AppBar(
 
             const SizedBox(height: 20),
 
-            // ================= EXCLUSIVE OFFER =================
+            // Special offers section
             _sectionHeader('Exclusive Offer'),
 
             const SizedBox(height: 12),
 
+            // Horizontal scrolling list of exclusive offer products
             SizedBox(
               height: 230,
               child: ListView(
@@ -116,11 +119,12 @@ appBar: AppBar(
 
             const SizedBox(height: 30),
 
-            // ================= BEST SELLING =================
+            // Popular products section
             _sectionHeader('Best Selling'),
 
             const SizedBox(height: 12),
 
+            // Horizontal scrolling list of best-selling products
             SizedBox(
               height: 230,
               child: ListView(
@@ -158,7 +162,7 @@ appBar: AppBar(
     );
   }
 
-  // ================= SECTION HEADER =================
+  // Creates a section header with title and "See all" link
   Widget _sectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -185,7 +189,7 @@ appBar: AppBar(
     );
   }
 
-  // ================= DOT =================
+  // Creates a dot indicator for the banner carousel
   Widget _buildDot(bool isActive) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 150),
@@ -200,7 +204,7 @@ appBar: AppBar(
   }
 }
 
-// ================= PRODUCT CARD =================
+// Reusable product card widget for displaying items
 class ProductCard extends StatelessWidget {
   final String title;
   final String price;
@@ -233,8 +237,7 @@ class ProductCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
-          // PRODUCT IMAGE
+          // Product image
           Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
@@ -246,12 +249,14 @@ class ProductCard extends StatelessWidget {
             ),
           ),
 
+          // Product details (title, price, and add button)
           if (!showImageOnly)
             Padding(
               padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Product title
                   Text(
                     title,
                     maxLines: 1,
@@ -262,6 +267,7 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 6),
+                  // Price and add to cart button
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
