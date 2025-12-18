@@ -25,6 +25,6 @@ class CartScreen extends StatelessWidget {
           ),
         ),
       ),
-    );;
+    );
   }
 }
