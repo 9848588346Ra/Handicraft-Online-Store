@@ -45,99 +45,102 @@ class _SignUpScreenState extends State<SignUpScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Back button
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                "Create Account",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 40),
-
-              // NAME
-              const Text(
-                "NAME",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              TextFormField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  hintText: "Enter your name",
-                  border: UnderlineInputBorder(),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Back button
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
-                validator: (value) =>
-                    value!.isEmpty ? "Enter Name" : null,
-              ),
-              const SizedBox(height: 20),
-
-              // EMAIL
-              const Text(
-                "EMAIL",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              TextFormField(
-                controller: emailController,
-                decoration: const InputDecoration(
-                  hintText: "Enter your email",
-                  border: UnderlineInputBorder(),
+                const SizedBox(height: 10),
+                const Text(
+                  "Create Account",
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
-                validator: (value) =>
-                    value!.isEmpty ? "Enter Email" : null,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 30),
+                const SizedBox(height: 40),
 
-              // PASSWORD
-              const Text(
-                "PASSWORD",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              TextFormField(
-                controller: passwordController,
-                obscureText: !showPassword,
-                decoration: InputDecoration(
-                  hintText: "Enter your password",
-                  border: const UnderlineInputBorder(),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                        showPassword ? Icons.visibility : Icons.visibility_off),
-                    onPressed: () {
-                      setState(() {
-                        showPassword = !showPassword;
-                      });
-                    },
+                // NAME
+                const Text(
+                  "NAME",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    hintText: "Enter your name",
+                    border: UnderlineInputBorder(),
+                  ),
+                  validator: (value) =>
+                      value!.isEmpty ? "Enter Name" : null,
+                ),
+                const SizedBox(height: 20),
+
+                // EMAIL
+                const Text(
+                  "EMAIL",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                TextFormField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
+                    hintText: "Enter your email",
+                    border: UnderlineInputBorder(),
+                  ),
+                  validator: (value) =>
+                      value!.isEmpty ? "Enter Email" : null,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 30),
+
+                // PASSWORD
+                const Text(
+                  "PASSWORD",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                TextFormField(
+                  controller: passwordController,
+                  obscureText: !showPassword,
+                  decoration: InputDecoration(
+                    hintText: "Enter your password",
+                    border: const UnderlineInputBorder(),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                          showPassword ? Icons.visibility : Icons.visibility_off),
+                      onPressed: () {
+                        setState(() {
+                          showPassword = !showPassword;
+                        });
+                      },
+                    ),
+                  ),
+                  validator: (value) =>
+                      value!.isEmpty ? "Enter Password" : null,
+                ),
+                const SizedBox(height: 50),
+
+                // NEXT BUTTON
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _signUpUser,
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25)),
+                    ),
+                    child: const Text(
+                      "Next",
+                      style: TextStyle(fontSize: 18),
+                    ),
                   ),
                 ),
-                validator: (value) =>
-                    value!.isEmpty ? "Enter Password" : null,
-              ),
-              const SizedBox(height: 50),
-
-              // NEXT BUTTON
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _signUpUser,
-                  style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25)),
-                  ),
-                  child: const Text(
-                    "Next",
-                    style: TextStyle(fontSize: 18),
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
