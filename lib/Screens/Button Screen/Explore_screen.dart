@@ -10,7 +10,7 @@ class ExploreScreen extends StatelessWidget {
         title: Text(
           "Explore Screen",
           style: TextStyle(
-            fontFamily: "open sans bold",
+            fontFamily: "open sans italic",
           ),
         ),
         centerTitle: true,
@@ -21,7 +21,7 @@ class ExploreScreen extends StatelessWidget {
           "Explore Screen",
           style: TextStyle(
             fontSize: 24,
-            fontFamily: "open sans bold",
+            fontFamily: "open sans italic",
           ),
         ),
       ),

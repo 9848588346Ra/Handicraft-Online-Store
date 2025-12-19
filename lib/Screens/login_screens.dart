@@ -18,10 +18,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _loginUser() async {
     final prefs = await SharedPreferences.getInstance();
 
-    final savedId = prefs.getString("userId");
+    final savedEmail = prefs.getString("email");
     final savedPass = prefs.getString("password");
 
-    if (idController.text == savedId &&
+    if (idController.text == savedEmail &&
         passController.text == savedPass) {
 
       await prefs.setBool("isLoggedIn", true);

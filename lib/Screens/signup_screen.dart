@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mitho_bakery/Screens/Button%20Screen/Shop_Screen.dart';
+import 'package:mitho_bakery/Screens/login_screens.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -26,15 +26,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
       await prefs.setString("email", emailController.text);
       await prefs.setString("password", passwordController.text);
 
-      await prefs.setBool("isLoggedIn", true);
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Account created successfully")),
       );
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const ShopScreen()),
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
     }
   }
