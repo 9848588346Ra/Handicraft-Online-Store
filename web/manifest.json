@@ -1,11 +1,11 @@
 {
-    "name": "mitho_bakery",
-    "short_name": "mitho_bakery",
+    "name": "Handicraft Online Store",
+    "short_name": "Handicraft Store",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Handicraft Online Store - A Flutter e-commerce application.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

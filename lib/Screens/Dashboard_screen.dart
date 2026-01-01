@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:mitho_bakery/Screens/Button%20Screen/Account_screen.dart';
-import 'package:mitho_bakery/Screens/Button%20Screen/Cart_screen.dart';
-import 'package:mitho_bakery/Screens/Button%20Screen/Explore_screen.dart';
-import 'package:mitho_bakery/Screens/Button%20Screen/Shop_Screen.dart';
+import 'package:handicraft_online_store/Screens/Button%20Screen/Account_screen.dart';
+import 'package:handicraft_online_store/Screens/Button%20Screen/Cart_screen.dart';
+import 'package:handicraft_online_store/Screens/Button%20Screen/Explore_screen.dart';
+import 'package:handicraft_online_store/Screens/Button%20Screen/Shop_Screen.dart';
 
 
 class DashboardScreen extends StatefulWidget {

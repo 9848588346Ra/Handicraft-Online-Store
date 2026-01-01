@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mitho_bakery/app.dart';
-import 'package:mitho_bakery/core/di/injection_container.dart';
+import 'package:handicraft_online_store/app.dart';
+import 'package:handicraft_online_store/core/di/injection_container.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
