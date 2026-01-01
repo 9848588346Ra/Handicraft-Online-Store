@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mitho_bakery/Screens/Dashboard_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../core/di/injection_container.dart';
+import '../../Screens/Dashboard_screen.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,28 +11,73 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  TextEditingController idController = TextEditingController();
-  TextEditingController passController = TextEditingController();
+  final _injectionContainer = InjectionContainer();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  bool isLoading = false;
 
   Future<void> _loginUser() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final savedEmail = prefs.getString("email");
-    final savedPass = prefs.getString("password");
-
-    if (idController.text == savedEmail &&
-        passController.text == savedPass) {
-
-      await prefs.setBool("isLoggedIn", true);
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DashboardScreen()),
-      );
-    } else {
+    if (emailController.text.trim().isEmpty || passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Invalid ID or Password")),
+        const SnackBar(content: Text("Please enter email and password")),
       );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // Ensure container is initialized
+      if (!_injectionContainer.isInitialized) {
+        print('Container not initialized, initializing now...');
+        await _injectionContainer.init();
+      }
+
+      print('Attempting login for: ${emailController.text.trim()}');
+      final success = await _injectionContainer.loginUseCase(
+        emailController.text.trim(),
+        passwordController.text,
+      );
+      print('Login result: $success');
+
+      if (mounted) {
+        if (success) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DashboardScreen()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Invalid email or password")),
+          );
+        }
+      }
+    } catch (e, stackTrace) {
+      print('Login Error: $e');
+      print('Stack trace: $stackTrace');
+      if (mounted) {
+        String errorMessage = 'Login failed';
+        if (e is Exception) {
+          errorMessage = e.toString().replaceAll('Exception: ', '');
+        } else {
+          errorMessage = e.toString();
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -42,16 +86,22 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               // Back Button + Title Row
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Icon(Icons.arrow_back_ios, size: 22, color: Colors.black87),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_ios, size: 22),
+                    color: Colors.black87,
+                    onPressed: () => Navigator.pop(context),
+                  ),
                   const SizedBox(width: 8),
                   const Text(
                     "Continue with E-mail",
@@ -77,12 +127,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // EMAIL INPUT
               TextField(
-                controller: idController,
+                controller: emailController,
                 decoration: InputDecoration(
                   hintText: "Enter your email",
-                  suffixIcon: idController.text.isNotEmpty
+                  suffixIcon: emailController.text.isNotEmpty
                       ? GestureDetector(
-                          onTap: () => setState(() => idController.clear()),
+                          onTap: () => setState(() => emailController.clear()),
                           child: const Icon(Icons.close, color: Colors.grey),
                         )
                       : null,
@@ -91,6 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   focusedBorder: const UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.green)),
                 ),
+                keyboardType: TextInputType.emailAddress,
                 onChanged: (v) => setState(() {}),
               ),
 
@@ -108,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               // PASSWORD INPUT
               TextField(
-                controller: passController,
+                controller: passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(
                   hintText: "Enter your password",
@@ -143,7 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                   },
                   child: const Text(
-                    "Don’t have account? Let’s create!",
+                    "Don't have account? Let's create!",
                     style: TextStyle(
                       color: Colors.blue,
                       fontSize: 16,
@@ -157,31 +208,45 @@ class _LoginScreenState extends State<LoginScreen> {
               // NEXT BUTTON
               Center(
                 child: GestureDetector(
-                  onTap: _loginUser,
+                  onTap: isLoading ? null : _loginUser,
                   child: Container(
                     width: double.infinity,
                     height: 55,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade600,
+                      color: isLoading
+                          ? Colors.grey.shade400
+                          : Colors.grey.shade600,
                       borderRadius: BorderRadius.circular(40),
                     ),
-                    child: const Center(
-                      child: Text(
-                        "Next",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                    child: Center(
+                      child: isLoading
+                          ? const CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                          : const Text(
+                              "Next",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                     ),
                   ),
                 ),
               ),
             ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 }
