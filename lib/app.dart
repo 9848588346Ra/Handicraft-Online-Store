@@ -1,7 +1,7 @@
 //widget
 // stless
 import 'package:flutter/material.dart';
-import 'package:handicraft_online_store/Screens/welcome.dart';
+import 'package:handicraft_online_store/presentation/Screens/welcome.dart';
 class App extends StatelessWidget {
   const App({super.key});
 

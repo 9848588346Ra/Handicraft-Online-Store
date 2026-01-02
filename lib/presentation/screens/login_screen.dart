@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../core/di/injection_container.dart';
-import '../../Screens/Dashboard_screen.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -46,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (success) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const DashboardScreen()),
+            MaterialPageRoute(builder: (context) => const Dashboard()),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
