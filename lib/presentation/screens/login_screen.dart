@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:handicraft_online_store/presentation/Screens/Dashboard_screen.dart';
 import '../../core/di/injection_container.dart';
 import 'signup_screen.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -206,11 +207,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 12),
 
                   // FORGOT PASSWORD
-                  const Text(
-                    "I forgot my password",
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 15,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgotPasswordScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "I forgot my password",
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontSize: 15,
+                      ),
                     ),
                   ),
 

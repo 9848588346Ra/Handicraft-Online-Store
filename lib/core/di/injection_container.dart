@@ -5,6 +5,8 @@ import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/sign_up_usecase.dart';
 import '../../domain/usecases/is_logged_in_usecase.dart';
 import '../../domain/usecases/logout_usecase.dart';
+import '../../domain/usecases/get_user_by_email_usecase.dart';
+import '../../domain/usecases/update_password_usecase.dart';
 
 class InjectionContainer {
   static final InjectionContainer _instance = InjectionContainer._internal();
@@ -17,6 +19,8 @@ class InjectionContainer {
   LoginUseCase? _loginUseCase;
   IsLoggedInUseCase? _isLoggedInUseCase;
   LogoutUseCase? _logoutUseCase;
+  GetUserByEmailUseCase? _getUserByEmailUseCase;
+  UpdatePasswordUseCase? _updatePasswordUseCase;
   bool _isInitialized = false;
   
   bool get isInitialized => _isInitialized;
@@ -38,6 +42,8 @@ class InjectionContainer {
       _loginUseCase = LoginUseCase(_authRepository!);
       _isLoggedInUseCase = IsLoggedInUseCase(_authRepository!);
       _logoutUseCase = LogoutUseCase(_authRepository!);
+      _getUserByEmailUseCase = GetUserByEmailUseCase(_authRepository!);
+      _updatePasswordUseCase = UpdatePasswordUseCase(_authRepository!);
       print('Use cases initialized');
       
       _isInitialized = true;
@@ -76,5 +82,19 @@ class InjectionContainer {
       throw Exception('InjectionContainer not initialized. Call init() first.');
     }
     return _logoutUseCase!;
+  }
+  
+  GetUserByEmailUseCase get getUserByEmailUseCase {
+    if (!_isInitialized || _getUserByEmailUseCase == null) {
+      throw Exception('InjectionContainer not initialized. Call init() first.');
+    }
+    return _getUserByEmailUseCase!;
+  }
+  
+  UpdatePasswordUseCase get updatePasswordUseCase {
+    if (!_isInitialized || _updatePasswordUseCase == null) {
+      throw Exception('InjectionContainer not initialized. Call init() first.');
+    }
+    return _updatePasswordUseCase!;
   }
 }

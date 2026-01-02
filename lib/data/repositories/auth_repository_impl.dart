@@ -54,4 +54,28 @@ class AuthRepositoryImpl implements AuthRepository {
     final userModel = await dataSource.getCurrentUser();
     return userModel?.toEntity();
   }
+
+  @override
+  Future<UserEntity?> getUserByEmail(String email) async {
+    final userModel = await dataSource.getUserByEmail(email);
+    return userModel?.toEntity();
+  }
+
+  @override
+  Future<void> updatePassword(String email, String newPassword) async {
+    final userModel = await dataSource.getUserByEmail(email);
+    if (userModel == null) {
+      throw Exception('User not found');
+    }
+
+    // Create updated user with new password
+    final updatedUser = UserModel(
+      name: userModel.name,
+      email: userModel.email,
+      password: newPassword,
+    );
+
+    // Save updated user
+    await dataSource.saveUser(updatedUser);
+  }
 }
