@@ -97,26 +97,16 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Back Button + Title Row
+                  // Title
                   const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios, size: 22),
-                        color: HandicraftColors.textPrimary,
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        "Continue with E-mail",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: HandicraftColors.textPrimary,
-                          letterSpacing: 0.5,
-                        ),
-                      )
-                    ],
+                  const Text(
+                    "Continue with E-mail",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: HandicraftColors.textPrimary,
+                      letterSpacing: 0.5,
+                    ),
                   ),
 
                   const SizedBox(height: 40),
