@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:handicraft_online_store/presentation/Screens/login_screen.dart';
+import '../../theme/theme_data.dart';
 
 
 
@@ -8,7 +9,6 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryPurple = Color(0xFF5E35B1); 
     const Color customRed = Color(0xFFE53935); 
 
     return Scaffold(
@@ -73,7 +73,7 @@ class WelcomeScreen extends StatelessWidget {
             // --- Get Started Button with Navigation ---
             SizedBox(
               width: double.infinity,
-              height: 55,
+              height: 56,
               child: ElevatedButton(
                 onPressed: () {
                   // The key change is here: Use Navigator.push to move to the new screen
@@ -85,18 +85,19 @@ class WelcomeScreen extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryPurple,
+                  backgroundColor: HandicraftColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(40),
                   ),
-                  elevation: 5,
+                  elevation: 3,
                 ),
                 child: const Text(
                   'Get Started',
                   style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
