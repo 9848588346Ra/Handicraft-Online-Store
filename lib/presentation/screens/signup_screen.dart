@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/di/injection_container.dart';
 import '../../domain/entities/user_entity.dart';
+import '../../theme/theme_data.dart';
 import 'login_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -154,56 +155,112 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: HandicraftColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Back button
+                  const SizedBox(height: 20),
                   IconButton(
-                    icon: const Icon(Icons.arrow_back),
+                    icon: const Icon(Icons.arrow_back_ios, size: 22),
+                    color: HandicraftColors.textPrimary,
                     onPressed: () {
                       Navigator.pop(context);
                     },
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
                   const Text(
                     "Create Account",
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: HandicraftColors.textPrimary,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Join us and start shopping for unique handicrafts",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: HandicraftColors.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: 40),
 
                   // NAME
                   const Text(
                     "NAME",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      fontSize: 13,
+                      color: HandicraftColors.textSecondary,
+                    ),
                   ),
+                  const SizedBox(height: 10),
                   TextFormField(
                     controller: nameController,
-                    decoration: const InputDecoration(
+                    style: const TextStyle(
+                      color: HandicraftColors.textPrimary,
+                      fontSize: 16,
+                    ),
+                    decoration: InputDecoration(
                       hintText: "Enter your name",
-                      border: UnderlineInputBorder(),
+                      hintStyle: TextStyle(
+                        color: HandicraftColors.textSecondary.withOpacity(0.6),
+                      ),
+                      enabledBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: HandicraftColors.borderLight, width: 1.5)),
+                      focusedBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: HandicraftColors.primary, width: 2)),
+                      errorBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 1.5)),
+                      focusedErrorBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 2)),
                     ),
                     validator: (value) =>
                         value!.isEmpty ? "Enter Name" : null,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 32),
 
                   // EMAIL
                   const Text(
                     "EMAIL",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      fontSize: 13,
+                      color: HandicraftColors.textSecondary,
+                    ),
                   ),
+                  const SizedBox(height: 10),
                   TextFormField(
                     controller: emailController,
-                    decoration: const InputDecoration(
+                    style: const TextStyle(
+                      color: HandicraftColors.textPrimary,
+                      fontSize: 16,
+                    ),
+                    decoration: InputDecoration(
                       hintText: "Enter your email",
-                      border: UnderlineInputBorder(),
+                      hintStyle: TextStyle(
+                        color: HandicraftColors.textSecondary.withOpacity(0.6),
+                      ),
+                      enabledBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: HandicraftColors.borderLight, width: 1.5)),
+                      focusedBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: HandicraftColors.primary, width: 2)),
+                      errorBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 1.5)),
+                      focusedErrorBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 2)),
                     ),
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -216,22 +273,45 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     },
                     keyboardType: TextInputType.emailAddress,
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 32),
 
                   // PASSWORD
                   const Text(
                     "PASSWORD",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                      fontSize: 13,
+                      color: HandicraftColors.textSecondary,
+                    ),
                   ),
+                  const SizedBox(height: 10),
                   TextFormField(
                     controller: passwordController,
                     obscureText: !showPassword,
+                    style: const TextStyle(
+                      color: HandicraftColors.textPrimary,
+                      fontSize: 16,
+                    ),
                     decoration: InputDecoration(
                       hintText: "Enter your password",
-                      border: const UnderlineInputBorder(),
+                      hintStyle: TextStyle(
+                        color: HandicraftColors.textSecondary.withOpacity(0.6),
+                      ),
+                      enabledBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: HandicraftColors.borderLight, width: 1.5)),
+                      focusedBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: HandicraftColors.primary, width: 2)),
+                      errorBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 1.5)),
+                      focusedErrorBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red, width: 2)),
                       suffixIcon: IconButton(
                         icon: Icon(
-                            showPassword ? Icons.visibility : Icons.visibility_off),
+                          showPassword ? Icons.visibility : Icons.visibility_off,
+                          color: HandicraftColors.textSecondary,
+                          size: 22,
+                        ),
                         onPressed: () {
                           setState(() {
                             showPassword = !showPassword;
@@ -254,7 +334,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   // NEXT BUTTON
                   SizedBox(
                     width: double.infinity,
-                    height: 50,
+                    height: 56,
                     child: ElevatedButton(
                       onPressed: isLoading
                           ? null
@@ -263,17 +343,36 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               _signUpUser();
                             },
                       style: ElevatedButton.styleFrom(
+                        backgroundColor: isLoading
+                            ? HandicraftColors.primary.withOpacity(0.6)
+                            : HandicraftColors.primary,
+                        elevation: isLoading ? 0 : 3,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25)),
+                          borderRadius: BorderRadius.circular(40),
+                        ),
                       ),
                       child: isLoading
-                          ? const CircularProgressIndicator()
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
                           : const Text(
-                              "Next",
-                              style: TextStyle(fontSize: 18),
+                              "Create Account",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
                             ),
                     ),
                   ),
+
+                  const SizedBox(height: 30),
                 ],
               ),
             ),

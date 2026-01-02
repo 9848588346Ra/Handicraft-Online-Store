@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:handicraft_online_store/presentation/Screens/Dashboard_screen.dart';
 import '../../core/di/injection_container.dart';
+import '../../theme/theme_data.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
 
@@ -85,68 +86,83 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: HandicraftColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Back Button + Title Row
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   Row(
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back_ios, size: 22),
-                        color: Colors.black87,
+                        color: HandicraftColors.textPrimary,
                         onPressed: () => Navigator.pop(context),
                       ),
                       const SizedBox(width: 8),
                       const Text(
                         "Continue with E-mail",
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 24,
                           fontWeight: FontWeight.w700,
+                          color: HandicraftColors.textPrimary,
+                          letterSpacing: 0.5,
                         ),
                       )
                     ],
                   ),
 
-                  const SizedBox(height: 35),
+                  const SizedBox(height: 40),
 
                   // EMAIL LABEL
                   const Text(
                     "E-MAIL",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
+                      letterSpacing: 1.2,
+                      fontSize: 13,
+                      color: HandicraftColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
 
                   // EMAIL INPUT
                   TextFormField(
                     controller: emailController,
+                    style: const TextStyle(
+                      color: HandicraftColors.textPrimary,
+                      fontSize: 16,
+                    ),
                     decoration: InputDecoration(
                       hintText: "Enter your email",
+                      hintStyle: TextStyle(
+                        color: HandicraftColors.textSecondary.withOpacity(0.6),
+                      ),
                       suffixIcon: emailController.text.isNotEmpty
                           ? GestureDetector(
                               onTap: () => setState(() => emailController.clear()),
-                              child: const Icon(Icons.close, color: Colors.grey),
+                              child: const Icon(
+                                Icons.close,
+                                color: HandicraftColors.textSecondary,
+                                size: 20,
+                              ),
                             )
                           : null,
                       enabledBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.green)),
+                          borderSide: BorderSide(color: HandicraftColors.borderLight, width: 1.5)),
                       focusedBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.green)),
+                          borderSide: BorderSide(color: HandicraftColors.primary, width: 2)),
                       errorBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red)),
+                          borderSide: BorderSide(color: Colors.red, width: 1.5)),
                       focusedErrorBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red)),
+                          borderSide: BorderSide(color: Colors.red, width: 2)),
                     ),
                     keyboardType: TextInputType.emailAddress,
                     onChanged: (v) => setState(() {}),
@@ -158,36 +174,46 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 32),
 
                   // PASSWORD LABEL
                   const Text(
                     "PASSWORD",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      letterSpacing: 1,
+                      letterSpacing: 1.2,
+                      fontSize: 13,
+                      color: HandicraftColors.textSecondary,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
 
                   // PASSWORD INPUT
                   TextFormField(
                     controller: passwordController,
                     obscureText: !showPassword,
+                    style: const TextStyle(
+                      color: HandicraftColors.textPrimary,
+                      fontSize: 16,
+                    ),
                     decoration: InputDecoration(
                       hintText: "Enter your password",
+                      hintStyle: TextStyle(
+                        color: HandicraftColors.textSecondary.withOpacity(0.6),
+                      ),
                       enabledBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey)),
+                          borderSide: BorderSide(color: HandicraftColors.borderLight, width: 1.5)),
                       focusedBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.green)),
+                          borderSide: BorderSide(color: HandicraftColors.primary, width: 2)),
                       errorBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red)),
+                          borderSide: BorderSide(color: Colors.red, width: 1.5)),
                       focusedErrorBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red)),
+                          borderSide: BorderSide(color: Colors.red, width: 2)),
                       suffixIcon: IconButton(
                         icon: Icon(
                           showPassword ? Icons.visibility : Icons.visibility_off,
-                          color: Colors.grey,
+                          color: HandicraftColors.textSecondary,
+                          size: 22,
                         ),
                         onPressed: () {
                           setState(() {
@@ -204,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
                   // FORGOT PASSWORD
                   GestureDetector(
@@ -219,13 +245,52 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: const Text(
                       "I forgot my password",
                       style: TextStyle(
-                        color: Colors.blue,
+                        color: HandicraftColors.primary,
                         fontSize: 15,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 40),
+
+                  // NEXT BUTTON
+                  SizedBox(
+                    width: double.infinity,
+                    height: 56,
+                    child: ElevatedButton(
+                      onPressed: isLoading ? null : _loginUser,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isLoading
+                            ? HandicraftColors.primary.withOpacity(0.6)
+                            : HandicraftColors.primary,
+                        elevation: isLoading ? 0 : 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(40),
+                        ),
+                      ),
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : const Text(
+                              "Login",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
 
                   // CREATE ACCOUNT TEXT BUTTON
                   Center(
@@ -237,48 +302,28 @@ class _LoginScreenState extends State<LoginScreen> {
                               builder: (context) => const SignUpScreen()),
                         );
                       },
-                      child: const Text(
-                        "Don't have account? Let's create!",
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 16,
+                      child: RichText(
+                        text: const TextSpan(
+                          style: TextStyle(
+                            color: HandicraftColors.textSecondary,
+                            fontSize: 15,
+                          ),
+                          children: [
+                            TextSpan(text: "Don't have an account? "),
+                            TextSpan(
+                              text: "Sign Up",
+                              style: TextStyle(
+                                color: HandicraftColors.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
                   ),
 
                   const SizedBox(height: 30),
-
-                  // NEXT BUTTON
-                  Center(
-                    child: GestureDetector(
-                      onTap: isLoading ? null : _loginUser,
-                      child: Container(
-                        width: double.infinity,
-                        height: 55,
-                        decoration: BoxDecoration(
-                          color: isLoading
-                              ? Colors.grey.shade400
-                              : Colors.grey.shade600,
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                        child: Center(
-                          child: isLoading
-                              ? const CircularProgressIndicator(
-                                  color: Colors.white,
-                                )
-                              : const Text(
-                                  "Next",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
