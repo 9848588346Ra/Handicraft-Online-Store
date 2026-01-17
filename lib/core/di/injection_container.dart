@@ -1,4 +1,5 @@
 import '../../data/datasources/local_storage_datasource.dart';
+import '../../data/datasources/remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/login_usecase.dart';
@@ -14,6 +15,7 @@ class InjectionContainer {
   InjectionContainer._internal();
 
   LocalStorageDataSource? _localStorageDataSource;
+  RemoteDataSource? _remoteDataSource;
   AuthRepository? _authRepository;
   SignUpUseCase? _signUpUseCase;
   LoginUseCase? _loginUseCase;
@@ -33,8 +35,12 @@ class InjectionContainer {
       await _localStorageDataSource!.init();
       print('LocalStorageDataSource initialized');
 
+      _remoteDataSource = RemoteDataSource();
+      // await _remoteDataSource!.init(); // Dio doesn't need explicit init usually
+      print('RemoteDataSource initialized');
+
       // Initialize Repositories
-      _authRepository = AuthRepositoryImpl(_localStorageDataSource!);
+      _authRepository = AuthRepositoryImpl(_localStorageDataSource!, _remoteDataSource!);
       print('AuthRepository initialized');
 
       // Initialize Use Cases

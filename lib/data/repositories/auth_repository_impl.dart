@@ -2,80 +2,76 @@ import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/local_storage_datasource.dart';
 import '../models/user_model.dart';
+import '../datasources/remote_datasource.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final LocalStorageDataSource dataSource;
+  final LocalStorageDataSource localDataSource;
+  final RemoteDataSource remoteDataSource;
 
-  AuthRepositoryImpl(this.dataSource);
+  AuthRepositoryImpl(this.localDataSource, this.remoteDataSource);
 
   @override
   Future<void> signUp(UserEntity user) async {
-    // Check if user already exists
-    final existingUser = await dataSource.getUserByEmail(user.email);
-    if (existingUser != null) {
-      throw Exception('User with this email already exists');
-    }
-
-    final userModel = UserModel.fromEntity(user);
-    await dataSource.saveUser(userModel);
+    // API Call
+    await remoteDataSource.signUp(user);
+    
+    // Optional: Save user details locally if needed
+    // final userModel = UserModel.fromEntity(user);
+    // await localDataSource.saveUser(userModel);
   }
 
   @override
   Future<bool> login(String email, String password) async {
-    final user = await dataSource.getUserByEmail(email);
-    
-    if (user == null) {
+    try {
+      final token = await remoteDataSource.login(email, password);
+      
+      if (token.isNotEmpty) {
+        // Save token or login status
+        await localDataSource.setLoggedIn(true);
+        // You might want to save the token too if your localDataSource supports it
+        
+        // Fetch user profile if needed to populate local user data
+        // final user = await remoteDataSource.getUserProfile(token);
+        // await localDataSource.setCurrentUser(user);
+        
+        return true;
+      }
       return false;
+    } catch (e) {
+      print('Login error: $e');
+      rethrow;
     }
-
-    if (user.password != password) {
-      return false;
-    }
-
-    // Set current user and logged in status
-    await dataSource.setCurrentUser(user);
-    await dataSource.setLoggedIn(true);
-    
-    return true;
   }
 
   @override
   Future<bool> isLoggedIn() async {
-    return await dataSource.isLoggedIn();
+    return await localDataSource.isLoggedIn();
   }
 
   @override
   Future<void> logout() async {
-    await dataSource.logout();
+    await localDataSource.logout();
   }
 
   @override
   Future<UserEntity?> getCurrentUser() async {
-    final userModel = await dataSource.getCurrentUser();
+    final userModel = await localDataSource.getCurrentUser();
     return userModel?.toEntity();
   }
 
   @override
   Future<UserEntity?> getUserByEmail(String email) async {
-    final userModel = await dataSource.getUserByEmail(email);
+    // Fetch from Local Storage for now since API might not support get by email without token
+    // Or implement remoteDataSource.getUserByEmail if API supports
+    final userModel = await localDataSource.getUserByEmail(email);
     return userModel?.toEntity();
   }
 
   @override
   Future<void> updatePassword(String email, String newPassword) async {
-    final userModel = await dataSource.getUserByEmail(email);
-    if (userModel == null) {
-      throw Exception('User not found');
-    }
-
-    // Create updated user with new password
-    final updatedUser = UserModel(
-      name: userModel.name,
-      email: userModel.email,
-      password: newPassword,
-    );
-
-    // Save updated user
-    await dataSource.saveUser(updatedUser);
+    // This typically requires an authenticated API endpoint
+    // For now throwing UnimplementedError specifically for API mode unless we add it to data source
+    // await remoteDataSource.updatePassword(email, newPassword);
+    throw UnimplementedError('Update password via API not yet implemented');
   }
 }
