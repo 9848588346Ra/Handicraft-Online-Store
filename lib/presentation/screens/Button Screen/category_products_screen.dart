@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:handicraft_online_store/data/cart_provider.dart';
-import 'package:handicraft_online_store/data/models/cart_item.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/product_detail_screen.dart';
+import 'package:handicraft_online_store/presentation/widgets/product_image.dart';
 
 const Color _primaryPurple = Color(0xFF5E35B1);
 
@@ -106,16 +105,7 @@ class CategoryProductsScreen extends StatelessWidget {
                         onAddToCart: onAddToCart != null
                             ? () {
                                 final price = _parsePrice(p.price);
-                                CartProvider.instance.addItem(CartItem(p.title, p.imagePath, price, 1));
                                 onAddToCart!(context, p.title, p.imagePath, price);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('${p.title} added to cart'),
-                                    backgroundColor: Colors.green,
-                                    behavior: SnackBarBehavior.floating,
-                                    duration: const Duration(milliseconds: 500),
-                                  ),
-                                );
                               }
                             : null,
                       );
@@ -160,17 +150,11 @@ class _ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: ClipRRect(
+              child: ProductImage(
+                imagePath: imagePath,
+                fit: BoxFit.cover,
+                width: double.infinity,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: Colors.grey.shade200,
-                    child: const Icon(Icons.image_not_supported, size: 40),
-                  ),
-                ),
               ),
             ),
             Padding(

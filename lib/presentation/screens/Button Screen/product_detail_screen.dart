@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:handicraft_online_store/data/cart_provider.dart';
 import 'package:handicraft_online_store/data/models/cart_item.dart';
+import 'package:handicraft_online_store/presentation/widgets/product_image.dart';
 
 const Color _primaryPurple = Color(0xFF5E35B1);
 
@@ -39,9 +40,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final price = _parsePrice(widget.price);
     final item = CartItem(widget.title, widget.imagePath, price, _quantity);
     CartProvider.instance.addItem(item);
-    if (widget.onAddToCart != null) {
-      widget.onAddToCart!(context, widget.title, widget.imagePath, price);
-    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${widget.title} (x$_quantity) added to cart'),
@@ -88,10 +86,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               height: 280,
               width: double.infinity,
               color: Colors.grey.shade100,
-              child: Image.asset(
-                widget.imagePath,
+              child: ProductImage(
+                imagePath: widget.imagePath,
                 fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported, size: 64),
+                width: double.infinity,
+                height: 280,
               ),
             ),
             Padding(

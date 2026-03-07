@@ -6,6 +6,7 @@ class OrderItem {
   final String price;
   final String address;
   final String date;
+  final String userEmail;
 
   OrderItem({
     required this.orderId,
@@ -14,6 +15,7 @@ class OrderItem {
     required this.price,
     required this.address,
     required this.date,
+    this.userEmail = '',
   });
 
   OrderItem copyWith({
@@ -23,6 +25,7 @@ class OrderItem {
     String? price,
     String? address,
     String? date,
+    String? userEmail,
   }) =>
       OrderItem(
         orderId: orderId ?? this.orderId,
@@ -31,6 +34,7 @@ class OrderItem {
         price: price ?? this.price,
         address: address ?? this.address,
         date: date ?? this.date,
+        userEmail: userEmail ?? this.userEmail,
       );
 
   Map<String, dynamic> toJson() => {
@@ -40,6 +44,7 @@ class OrderItem {
         'price': price,
         'address': address,
         'date': date,
+        'userEmail': userEmail,
       };
 
   factory OrderItem.fromJson(Map<String, dynamic> json) => OrderItem(
@@ -49,5 +54,6 @@ class OrderItem {
         price: json['price'] as String? ?? '',
         address: json['address'] as String? ?? '',
         date: json['date'] as String? ?? '',
+        userEmail: json['userEmail'] as String? ?? '',
       );
 }

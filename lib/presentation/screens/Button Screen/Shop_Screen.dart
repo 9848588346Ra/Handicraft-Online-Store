@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:handicraft_online_store/data/product_provider.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/category_products_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/product_detail_screen.dart';
+import 'package:handicraft_online_store/presentation/widgets/product_image.dart';
 
 const Color _primaryPurple = Color(0xFF5E35B1);
 const Color _lightBlue = Color.fromARGB(255, 253, 254, 255);
@@ -132,6 +134,22 @@ class _ShopScreenState extends State<ShopScreen> {
                   _sectionHeader(context, 'Handcrafted Favorites', _handcraftedFavorites),
                   _buildProductRow(context, _handcraftedFavorites),
                   const SizedBox(height: 30),
+                  ListenableBuilder(
+                    listenable: ProductProvider.instance,
+                    builder: (context, _) {
+                      final adminProducts = ProductProvider.instance.products;
+                      if (adminProducts.isEmpty) return const SizedBox.shrink();
+                      final list = adminProducts.map((p) => _Product(p.title, p.price, p.imagePath)).toList();
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _sectionHeader(context, 'New Additions', list),
+                          _buildProductRow(context, list),
+                          const SizedBox(height: 30),
+                        ],
+                      );
+                    },
+                  ),
                   _buildShopByCategory(context),
                   const SizedBox(height: 30),
                   _buildWhyShopWithUs(),
@@ -509,17 +527,11 @@ class _ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: ClipRRect(
+              child: ProductImage(
+                imagePath: imagePath,
+                fit: BoxFit.cover,
+                width: double.infinity,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: Colors.grey.shade200,
-                    child: const Icon(Icons.image_not_supported, size: 40),
-                  ),
-                ),
               ),
             ),
             Padding(

@@ -1,10 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:handicraft_online_store/core/di/injection_container.dart';
 import 'package:handicraft_online_store/data/delivery_address_provider.dart';
 import 'package:handicraft_online_store/data/models/delivery_address.dart';
 import 'package:handicraft_online_store/data/models/order_item.dart';
 import 'package:handicraft_online_store/data/order_provider.dart';
+import 'package:handicraft_online_store/presentation/screens/login_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/signup_screen.dart';
 
 enum OrderStatus { ongoing, completed }
 
@@ -20,39 +23,148 @@ class OrdersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF5F6F8),
-        body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context),
-              _buildTabsCard(),
-              Expanded(
-                child: ListenableBuilder(
-                  listenable: OrderProvider.instance,
-                  builder: (context, _) {
-                    return TabBarView(
-                      children: [
-                        _OrdersList(
-                          orders: OrderProvider.instance.ongoingOrders,
-                          status: OrderStatus.ongoing,
-                          onStartShopping: onStartShopping,
-                        ),
-                        _OrdersList(
-                          orders: OrderProvider.instance.completedOrders,
-                          status: OrderStatus.completed,
-                          onStartShopping: onStartShopping,
-                        ),
-                      ],
-                    );
-                  },
-                ),
+    return FutureBuilder(
+      future: _loadCurrentUser(),
+      builder: (context, snapshot) {
+        final user = snapshot.data;
+        final isLoggedIn = user != null && user.email.isNotEmpty;
+
+        if (!isLoggedIn) {
+          return Scaffold(
+            backgroundColor: const Color(0xFFF5F6F8),
+            body: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context),
+                  Expanded(child: _buildLoginPrompt(context)),
+                ],
               ),
-            ],
+            ),
+          );
+        }
+
+        final userEmail = user!.email;
+        return DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            backgroundColor: const Color(0xFFF5F6F8),
+            body: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context),
+                  _buildTabsCard(),
+                  Expanded(
+                    child: ListenableBuilder(
+                      listenable: OrderProvider.instance,
+                      builder: (context, _) {
+                        return TabBarView(
+                          children: [
+                        _OrdersList(
+                          orders: OrderProvider.instance.getOngoingOrdersForUser(userEmail),
+                          status: OrderStatus.ongoing,
+                          userEmail: userEmail,
+                          onStartShopping: onStartShopping,
+                        ),
+                        _OrdersList(
+                          orders: OrderProvider.instance.getCompletedOrdersForUser(userEmail),
+                          status: OrderStatus.completed,
+                          userEmail: userEmail,
+                          onStartShopping: onStartShopping,
+                        ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
+        );
+      },
+    );
+  }
+
+  Future<dynamic> _loadCurrentUser() async {
+    try {
+      final container = InjectionContainer();
+      if (!container.isInitialized) await container.init();
+      return await container.getCurrentUserUseCase.call();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Widget _buildLoginPrompt(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: _primaryPurple.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.login, size: 64, color: _primaryPurple.withOpacity(0.8)),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Login or Sign up',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'open sans bold', color: Colors.grey.shade700),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please login or sign up first to view your orders',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  );
+                  if (context.mounted && result == true) {
+                    // Login success - Navigator.pushReplacement in LoginScreen handles navigation
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _primaryPurple,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold')),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: _primaryPurple,
+                  side: BorderSide(color: _primaryPurple),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Sign Up', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold')),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -134,14 +246,14 @@ class _OrdersList extends StatelessWidget {
   const _OrdersList({
     required this.orders,
     required this.status,
+    required this.userEmail,
     this.onStartShopping,
   });
 
   final List<OrderItem> orders;
   final OrderStatus status;
+  final String userEmail;
   final VoidCallback? onStartShopping;
-
-  static const Color _primaryPurple = Color(0xFF5E35B1);
 
   Map<String, List<OrderItem>> _groupByOrderId() {
     final map = <String, List<OrderItem>>{};
@@ -171,6 +283,7 @@ class _OrdersList extends StatelessWidget {
             orderId: orderId,
             items: items,
             status: status,
+            userEmail: userEmail,
             onStartShopping: onStartShopping,
           ),
         );
@@ -184,12 +297,14 @@ class _OrderGroupCard extends StatelessWidget {
     required this.orderId,
     required this.items,
     required this.status,
+    required this.userEmail,
     this.onStartShopping,
   });
 
   final String orderId;
   final List<OrderItem> items;
   final OrderStatus status;
+  final String userEmail;
   final VoidCallback? onStartShopping;
 
   static const Color _primaryPurple = Color(0xFF5E35B1);
@@ -331,7 +446,7 @@ class _OrderGroupCard extends StatelessWidget {
   }
 
   void _showEditOrder(BuildContext context) {
-    DeliveryAddressProvider.instance.load();
+    DeliveryAddressProvider.instance.load(userEmail);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

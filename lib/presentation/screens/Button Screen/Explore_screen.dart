@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:handicraft_online_store/data/cart_provider.dart';
-import 'package:handicraft_online_store/data/models/cart_item.dart';
+import 'package:handicraft_online_store/data/product_provider.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/product_detail_screen.dart';
+import 'package:handicraft_online_store/presentation/widgets/product_image.dart';
 
 const Color _primaryPurple = Color(0xFF5E35B1);
 
@@ -51,7 +51,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   List<_ExploreProduct> get _filteredProducts {
-    var list = _allProducts;
+    var list = List<_ExploreProduct>.from(_allProducts);
+    final adminProducts = ProductProvider.instance.products
+        .map((p) => _ExploreProduct(p.title, p.price, p.imagePath, p.category))
+        .toList();
+    list = [...list, ...adminProducts];
     if (_selectedCategory != 'All') {
       list = list.where((p) => p.category == _selectedCategory).toList();
     }
@@ -90,7 +94,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
             const SizedBox(height: 12),
             Expanded(
-              child: _buildProductGrid(),
+              child: ListenableBuilder(
+                listenable: ProductProvider.instance,
+                builder: (context, _) => _buildProductGrid(),
+              ),
             ),
           ],
         ),
@@ -252,16 +259,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
           onAddToCart: widget.onAddToCart != null
               ? () {
                   final price = _parsePrice(p.price);
-                  CartProvider.instance.addItem(CartItem(p.title, p.imagePath, price, 1));
                   widget.onAddToCart!(context, p.title, p.imagePath, price);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${p.title} added to cart'),
-                      backgroundColor: Colors.green,
-                      behavior: SnackBarBehavior.floating,
-                      duration: const Duration(milliseconds: 500),
-                    ),
-                  );
                 }
               : null,
         );
@@ -308,17 +306,11 @@ class _ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: ClipRRect(
+              child: ProductImage(
+                imagePath: imagePath,
+                fit: BoxFit.cover,
+                width: double.infinity,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                child: Image.asset(
-                  imagePath,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  errorBuilder: (_, __, ___) => Container(
-                    color: Colors.grey.shade200,
-                    child: const Icon(Icons.image_not_supported, size: 40),
-                  ),
-                ),
               ),
             ),
             Padding(

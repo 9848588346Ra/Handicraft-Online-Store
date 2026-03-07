@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:handicraft_online_store/data/cart_provider.dart';
 import 'package:handicraft_online_store/data/models/cart_item.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/Account_screen.dart';
-import 'package:handicraft_online_store/presentation/screens/Button Screen/Cart_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/Button Screen/Cart_screen.dart' show CartScreen;
 import 'package:handicraft_online_store/presentation/screens/Button Screen/Explore_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/Shop_Screen.dart';
 

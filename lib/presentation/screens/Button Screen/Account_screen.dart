@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:handicraft_online_store/core/di/injection_container.dart';
 import 'package:handicraft_online_store/data/profile_provider.dart';
 import 'package:handicraft_online_store/domain/entities/user_entity.dart';
+import 'package:handicraft_online_store/data/admin_provider.dart';
+import 'package:handicraft_online_store/presentation/screens/Button Screen/about_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/Button Screen/admin_product_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/delivery_address_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/Button Screen/help_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/my_details_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/orders_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/admin_login_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/login_screen.dart';
-import 'package:handicraft_online_store/presentation/screens/welcome.dart';
 import 'package:image_picker/image_picker.dart';
 
 const Color _primaryPurple = Color(0xFF5E35B1);
@@ -54,13 +58,16 @@ class _AccountScreenState extends State<AccountScreen> {
 
     if (shouldLogout == true) {
       try {
-        if (InjectionContainer().isInitialized) {
+        final isAdmin = AdminProvider.instance.isAdminLoggedIn;
+        if (isAdmin) {
+          await AdminProvider.instance.logout();
+        } else if (InjectionContainer().isInitialized) {
           await InjectionContainer().logoutUseCase.call();
         }
         if (context.mounted) {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
             (route) => false,
           );
           ScaffoldMessenger.of(context).showSnackBar(
@@ -147,6 +154,8 @@ class _AccountScreenState extends State<AccountScreen> {
               _buildHeader(),
               const SizedBox(height: 24),
               _buildProfileCard(context),
+              const SizedBox(height: 20),
+              _buildAdminSection(context),
               const SizedBox(height: 20),
               _buildSectionTitle('Account'),
               const SizedBox(height: 12),
@@ -329,8 +338,8 @@ class _AccountScreenState extends State<AccountScreen> {
         if (result == true && mounted) setState(() {});
       }),
       _AccountOption(Icons.location_on_outlined, 'Delivery Address', 'Manage addresses', () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DeliveryAddressScreen()))),
-      _AccountOption(Icons.help_outline, 'Help', 'FAQs & support', () {}),
-      _AccountOption(Icons.info_outline, 'About', 'App version & info', () {}),
+      _AccountOption(Icons.help_outline, 'Help', 'FAQs & support', () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpScreen()))),
+      _AccountOption(Icons.info_outline, 'About', 'App version & info', () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutScreen()))),
     ];
 
     return Container(
@@ -385,14 +394,73 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
+  Widget _buildAdminSection(BuildContext context) {
+    return ListenableBuilder(
+      listenable: AdminProvider.instance,
+      builder: (context, _) {
+        final isAdmin = AdminProvider.instance.isAdminLoggedIn;
+        if (isAdmin) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionTitle('Admin'),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _buildAdminOption(context, Icons.inventory_2_outlined, 'Manage Product', () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminProductScreen()));
+                }),
+              ),
+            ],
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
+  Widget _buildAdminOption(BuildContext context, IconData icon, String label, VoidCallback onTap) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: _primaryPurple.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                  child: Icon(icon, size: 22, color: _primaryPurple),
+                ),
+                const SizedBox(width: 16),
+                Expanded(child: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold', color: Colors.black87))),
+                Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey.shade400),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildLogoutOrLoginButton(BuildContext context) {
     return FutureBuilder<UserEntity?>(
       future: _loadUserAndProfile(),
       builder: (context, snapshot) {
         final user = snapshot.data;
         final isLoggedIn = user != null && user.email.isNotEmpty;
+        final isAdmin = AdminProvider.instance.isAdminLoggedIn;
 
-        if (isLoggedIn) {
+        if (isLoggedIn || isAdmin) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Container(
@@ -426,34 +494,68 @@ class _AccountScreenState extends State<AccountScreen> {
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: _primaryPurple.withOpacity(0.3)),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+          child: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: _primaryPurple.withOpacity(0.3)),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
                 ),
-                borderRadius: BorderRadius.circular(16),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.login, size: 22, color: _primaryPurple),
-                      const SizedBox(width: 12),
-                      Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold', color: _primaryPurple)),
-                    ],
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.login, size: 22, color: _primaryPurple),
+                          const SizedBox(width: 12),
+                          Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold', color: _primaryPurple)),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: _primaryPurple.withOpacity(0.3)),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AdminLoginScreen()),
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.admin_panel_settings, size: 22, color: _primaryPurple),
+                          const SizedBox(width: 12),
+                          Text('Login as Admin', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold', color: _primaryPurple)),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },

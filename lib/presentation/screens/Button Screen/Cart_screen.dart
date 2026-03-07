@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:handicraft_online_store/core/di/injection_container.dart';
 import 'package:handicraft_online_store/data/cart_provider.dart';
 import 'package:handicraft_online_store/data/delivery_address_provider.dart';
 import 'package:handicraft_online_store/data/models/cart_item.dart';
@@ -19,7 +20,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  void _openCheckoutModal() {
+  Future<void> _openCheckoutModal() async {
     final items = CartProvider.instance.items;
     if (items.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -27,11 +28,20 @@ class _CartScreenState extends State<CartScreen> {
       );
       return;
     }
+    String userEmail = '';
+    try {
+      final container = InjectionContainer();
+      if (!container.isInitialized) await container.init();
+      final user = await container.getCurrentUserUseCase.call();
+      userEmail = user?.email ?? '';
+    } catch (_) {}
+    if (!mounted) return;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => _CheckoutModal(
+        userEmail: userEmail,
         total: CartProvider.instance.total,
         itemCount: CartProvider.instance.itemCount,
         onPlaceOrder: _placeOrder,
@@ -52,7 +62,14 @@ class _CartScreenState extends State<CartScreen> {
       return;
     }
 
-    OrderProvider.instance.addOngoingOrder(items, address);
+    String userEmail = '';
+    try {
+      final container = InjectionContainer();
+      if (!container.isInitialized) await container.init();
+      final user = await container.getCurrentUserUseCase.call();
+      userEmail = user?.email ?? '';
+    } catch (_) {}
+    OrderProvider.instance.addOngoingOrder(items, address, userEmail: userEmail);
     CartProvider.instance.clear();
 
     if (mounted) {
@@ -124,7 +141,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildHeader() {
+Widget _buildHeader() {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
       decoration: BoxDecoration(
@@ -190,7 +207,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+Widget _buildEmptyState() {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -241,7 +258,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildCartItems(List<CartItem> items) {
+Widget _buildCartItems(List<CartItem> items) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
@@ -262,7 +279,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildCartItemRow(CartItem item, int index) {
+Widget _buildCartItemRow(CartItem item, int index) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -318,7 +335,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildImage(String path) {
+Widget _buildImage(String path) {
     final errorWidget = Container(
       width: 72,
       height: 72,
@@ -337,7 +354,7 @@ class _CartScreenState extends State<CartScreen> {
     return errorWidget;
   }
 
-  Widget _qtyButton(VoidCallback onTap, IconData icon) {
+Widget _qtyButton(VoidCallback onTap, IconData icon) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
@@ -352,7 +369,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildOrderSummary(double total, int itemCount) {
+Widget _buildOrderSummary(double total, int itemCount) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(20),
@@ -392,7 +409,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildProceedToCheckoutBar(double total) {
+Widget _buildProceedToCheckoutBar(double total) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -432,12 +449,14 @@ class _CartScreenState extends State<CartScreen> {
 }
 
 class _CheckoutModal extends StatefulWidget {
+  final String userEmail;
   final double total;
   final int itemCount;
   final void Function(String address) onPlaceOrder;
   final VoidCallback? onContinueShopping;
 
   const _CheckoutModal({
+    required this.userEmail,
     required this.total,
     required this.itemCount,
     required this.onPlaceOrder,
@@ -445,7 +464,7 @@ class _CheckoutModal extends StatefulWidget {
   });
 
   @override
-  State<_CheckoutModal> createState() => _CheckoutModalState();
+State<_CheckoutModal> createState() => _CheckoutModalState();
 }
 
 class _CheckoutModalState extends State<_CheckoutModal> {
@@ -462,7 +481,7 @@ class _CheckoutModalState extends State<_CheckoutModal> {
   @override
   void initState() {
     super.initState();
-    DeliveryAddressProvider.instance.load();
+    DeliveryAddressProvider.instance.load(widget.userEmail);
   }
   final _streetController = TextEditingController();
   final _cityController = TextEditingController();
@@ -610,7 +629,7 @@ class _CheckoutModalState extends State<_CheckoutModal> {
     );
   }
 
-  Widget _buildSection(String label, String value, VoidCallback? onTap) {
+Widget _buildSection(String label, String value, VoidCallback? onTap) {
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -634,7 +653,7 @@ class _CheckoutModalState extends State<_CheckoutModal> {
     );
   }
 
-  Widget _buildPaymentOptions() {
+Widget _buildPaymentOptions() {
     final options = [
       ('COD', 'Cash on Delivery (COD)', Icons.money),
       ('Card', 'Credit / Debit Card', Icons.credit_card),
@@ -659,7 +678,7 @@ class _CheckoutModalState extends State<_CheckoutModal> {
                 ),
                 child: Row(
                   children: [
-                    Icon(o.$3, color: selected ? _primaryPurple : Colors.grey),
+Icon(o.$3, color: selected ? _primaryPurple : Colors.grey),
                     const SizedBox(width: 12),
                     Expanded(child: Text(o.$2, style: TextStyle(fontWeight: selected ? FontWeight.w600 : FontWeight.normal))),
                     if (selected) Icon(Icons.check_circle, color: _primaryPurple, size: 22),
@@ -673,7 +692,7 @@ class _CheckoutModalState extends State<_CheckoutModal> {
     );
   }
 
-  Widget _buildAddressSection() {
+Widget _buildAddressSection() {
     return ListenableBuilder(
       listenable: DeliveryAddressProvider.instance,
       builder: (context, _) {
@@ -703,7 +722,7 @@ class _CheckoutModalState extends State<_CheckoutModal> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.add_location_alt_outlined, size: 22, color: _primaryPurple),
+Icon(Icons.add_location_alt_outlined, size: 22, color: _primaryPurple),
                       const SizedBox(width: 12),
                       Text(_showManualForm ? 'Hide new address form' : 'Add new address', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _primaryPurple)),
                     ],
@@ -721,7 +740,7 @@ class _CheckoutModalState extends State<_CheckoutModal> {
     );
   }
 
-  Widget _buildSavedAddressOption(DeliveryAddress addr) {
+Widget _buildSavedAddressOption(DeliveryAddress addr) {
     final typeColor = addr.type.color;
     final isSelected = _selectedAddress?.id == addr.id;
     return Padding(
@@ -755,7 +774,7 @@ class _CheckoutModalState extends State<_CheckoutModal> {
                           Text(addr.type.label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: typeColor)),
                           if (isSelected) ...[
                             const SizedBox(width: 8),
-                            Icon(Icons.check_circle, size: 16, color: _primaryPurple),
+Icon(Icons.check_circle, size: 16, color: _primaryPurple),
                           ],
                         ],
                       ),
@@ -773,7 +792,7 @@ class _CheckoutModalState extends State<_CheckoutModal> {
     );
   }
 
-  Widget _buildAddressForm() {
+Widget _buildAddressForm() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -812,7 +831,7 @@ class _CheckoutModalState extends State<_CheckoutModal> {
     );
   }
 
-  Widget _buildField(TextEditingController c, String label, IconData icon) {
+Widget _buildField(TextEditingController c, String label, IconData icon) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextFormField(
@@ -834,7 +853,7 @@ class _OrderAcceptedDialog extends StatelessWidget {
   const _OrderAcceptedDialog({required this.onDone});
 
   @override
-  Widget build(BuildContext context) {
+Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
@@ -892,7 +911,7 @@ class _OrderAcceptedDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildSuccessGraphic() {
+Widget _buildSuccessGraphic() {
     return Container(
       width: 100,
       height: 100,

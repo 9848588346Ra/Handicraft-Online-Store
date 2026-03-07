@@ -5,6 +5,7 @@ import 'package:handicraft_online_store/core/di/injection_container.dart';
 import 'package:handicraft_online_store/data/profile_provider.dart';
 import 'package:handicraft_online_store/domain/entities/user_entity.dart';
 import 'package:handicraft_online_store/presentation/screens/login_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/signup_screen.dart';
 import 'package:image_picker/image_picker.dart';
 
 const Color _primaryPurple = Color(0xFF5E35B1);
@@ -30,6 +31,7 @@ class _MyDetailsScreenState extends State<MyDetailsScreen> {
   UserEntity? _user;
   bool _isLoading = true;
   String? _loadError;
+  bool _needsLogin = false;
 
   @override
   void initState() {
@@ -41,15 +43,15 @@ class _MyDetailsScreenState extends State<MyDetailsScreen> {
     setState(() {
       _isLoading = true;
       _loadError = null;
+      _needsLogin = false;
     });
 
     UserEntity? user = widget.user;
     if (user == null) {
       try {
         final container = InjectionContainer();
-        if (container.isInitialized) {
-          user = await container.getCurrentUserUseCase.call();
-        }
+        if (!container.isInitialized) await container.init();
+        user = await container.getCurrentUserUseCase.call();
       } catch (e) {
         if (mounted) {
           setState(() {
@@ -67,6 +69,8 @@ class _MyDetailsScreenState extends State<MyDetailsScreen> {
       _nameController.text = ProfileProvider.instance.name ?? user.name;
       _phoneController.text = ProfileProvider.instance.phone ?? '';
       _addressController.text = ProfileProvider.instance.address ?? '';
+    } else {
+      _needsLogin = true;
     }
 
     if (mounted) {
@@ -237,6 +241,63 @@ class _MyDetailsScreenState extends State<MyDetailsScreen> {
             const SizedBox(height: 16),
             Text('Loading your profile...', style: TextStyle(fontSize: 15, color: Colors.grey.shade600)),
           ],
+        ),
+      );
+    }
+
+    if (_needsLogin) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(color: _primaryPurple.withOpacity(0.1), shape: BoxShape.circle),
+                child: Icon(Icons.login, size: 64, color: _primaryPurple.withOpacity(0.8)),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Login or Sign up',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'open sans bold', color: Colors.grey.shade700),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Please login or sign up first to update your profile',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _primaryPurple,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold')),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUpScreen())),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _primaryPurple,
+                    side: BorderSide(color: _primaryPurple),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text('Sign Up', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold')),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }

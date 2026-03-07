@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:handicraft_online_store/presentation/Screens/login_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/Dashboard_screen.dart';
 import '../../theme/theme_data.dart';
 
 
@@ -76,11 +76,10 @@ class WelcomeScreen extends StatelessWidget {
               height: 56,
               child: ElevatedButton(
                 onPressed: () {
-                  // The key change is here: Use Navigator.push to move to the new screen
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => LoginScreen(),
+                      builder: (context) => const DashboardScreen(),
                     ),
                   );
                 },

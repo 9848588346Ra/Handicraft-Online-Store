@@ -1,21 +1,157 @@
 import 'package:flutter/material.dart';
+import 'package:handicraft_online_store/core/di/injection_container.dart';
 import 'package:handicraft_online_store/data/delivery_address_provider.dart';
 import 'package:handicraft_online_store/data/models/delivery_address.dart';
+import 'package:handicraft_online_store/presentation/screens/login_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/signup_screen.dart';
 
 const Color _primaryPurple = Color(0xFF5E35B1);
 
-class DeliveryAddressScreen extends StatefulWidget {
+class DeliveryAddressScreen extends StatelessWidget {
   const DeliveryAddressScreen({super.key});
 
+  Future<dynamic> _loadCurrentUser() async {
+    try {
+      final container = InjectionContainer();
+      if (!container.isInitialized) await container.init();
+      return await container.getCurrentUserUseCase.call();
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
-  State<DeliveryAddressScreen> createState() => _DeliveryAddressScreenState();
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _loadCurrentUser(),
+      builder: (context, snapshot) {
+        final user = snapshot.data;
+        final isLoggedIn = user != null && user.email.isNotEmpty;
+
+        if (!isLoggedIn) {
+          return Scaffold(
+            backgroundColor: const Color(0xFFF5F6F8),
+            body: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context),
+                  Expanded(child: _buildLoginPrompt(context)),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return _DeliveryAddressContent(userEmail: user!.email);
+      },
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 16, 20, 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back_ios_new, size: 20),
+            style: IconButton.styleFrom(
+              backgroundColor: _primaryPurple.withOpacity(0.1),
+              foregroundColor: _primaryPurple,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Delivery Addresses', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontFamily: 'open sans bold', color: Colors.black87)),
+                Text('Add home, work & study addresses', style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoginPrompt(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(color: _primaryPurple.withOpacity(0.1), shape: BoxShape.circle),
+              child: Icon(Icons.login, size: 64, color: _primaryPurple.withOpacity(0.8)),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Login or Sign up',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'open sans bold', color: Colors.grey.shade700),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Please login or sign up first to manage your delivery addresses',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _primaryPurple,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold')),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUpScreen())),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: _primaryPurple,
+                  side: BorderSide(color: _primaryPurple),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('Sign Up', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold')),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class _DeliveryAddressScreenState extends State<DeliveryAddressScreen> {
+class _DeliveryAddressContent extends StatefulWidget {
+  const _DeliveryAddressContent({required this.userEmail});
+
+  final String userEmail;
+
+  @override
+  State<_DeliveryAddressContent> createState() => _DeliveryAddressContentState();
+}
+
+class _DeliveryAddressContentState extends State<_DeliveryAddressContent> {
   @override
   void initState() {
     super.initState();
-    DeliveryAddressProvider.instance.load();
+    DeliveryAddressProvider.instance.load(widget.userEmail);
   }
 
   @override
@@ -220,6 +356,7 @@ class _DeliveryAddressScreenState extends State<DeliveryAddressScreen> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => _AddEditAddressSheet(
         address: address,
+        userEmail: widget.userEmail,
         onSaved: () {
           Navigator.pop(ctx);
           setState(() {});
@@ -239,7 +376,7 @@ class _DeliveryAddressScreenState extends State<DeliveryAddressScreen> {
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
-              DeliveryAddressProvider.instance.remove(addr.id);
+              DeliveryAddressProvider.instance.remove(addr.id, widget.userEmail);
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: const Text('Address removed'), backgroundColor: Colors.green, behavior: SnackBarBehavior.floating),
@@ -255,9 +392,10 @@ class _DeliveryAddressScreenState extends State<DeliveryAddressScreen> {
 
 class _AddEditAddressSheet extends StatefulWidget {
   final DeliveryAddress? address;
+  final String userEmail;
   final VoidCallback onSaved;
 
-  const _AddEditAddressSheet({this.address, required this.onSaved});
+  const _AddEditAddressSheet({this.address, required this.userEmail, required this.onSaved});
 
   @override
   State<_AddEditAddressSheet> createState() => _AddEditAddressSheetState();
@@ -312,12 +450,12 @@ class _AddEditAddressSheetState extends State<_AddEditAddressSheet> {
       phone: _phoneController.text.trim(),
     );
     if (widget.address != null) {
-      DeliveryAddressProvider.instance.update(addr);
+      DeliveryAddressProvider.instance.update(addr, widget.userEmail);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Address updated'), backgroundColor: Colors.green, behavior: SnackBarBehavior.floating),
       );
     } else {
-      DeliveryAddressProvider.instance.add(addr);
+      DeliveryAddressProvider.instance.add(addr, widget.userEmail);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Address added'), backgroundColor: Colors.green, behavior: SnackBarBehavior.floating),
       );

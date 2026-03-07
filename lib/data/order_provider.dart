@@ -22,6 +22,16 @@ class OrderProvider extends ChangeNotifier {
   List<OrderItem> get ongoingOrders => List.unmodifiable(_ongoingOrders);
   List<OrderItem> get completedOrders => List.unmodifiable(_completedOrders);
 
+  List<OrderItem> getOngoingOrdersForUser(String userEmail) {
+    if (userEmail.isEmpty) return [];
+    return _ongoingOrders.where((o) => o.userEmail == userEmail).toList();
+  }
+
+  List<OrderItem> getCompletedOrdersForUser(String userEmail) {
+    if (userEmail.isEmpty) return [];
+    return _completedOrders.where((o) => o.userEmail == userEmail).toList();
+  }
+
   Future<void> _loadFromStorage() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -76,7 +86,7 @@ class OrderProvider extends ChangeNotifier {
     } catch (_) {}
   }
 
-  void addOngoingOrder(List<CartItem> items, String address) {
+  void addOngoingOrder(List<CartItem> items, String address, {String userEmail = ''}) {
     final date = _formatDate(DateTime.now());
     final orderId = DateTime.now().millisecondsSinceEpoch.toString();
     for (final item in items) {
@@ -88,6 +98,7 @@ class OrderProvider extends ChangeNotifier {
           price: '\$ ${item.price.toStringAsFixed(2)}',
           address: address,
           date: date,
+          userEmail: userEmail,
         ));
       }
     }
