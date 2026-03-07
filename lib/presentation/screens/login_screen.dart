@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:handicraft_online_store/presentation/Screens/Dashboard_screen.dart';
+import 'package:handicraft_online_store/presentation/Screens/dashboard_screen.dart';
 import '../../core/di/injection_container.dart';
 import '../../theme/theme_data.dart';
 import 'signup_screen.dart';
@@ -19,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
   bool showPassword = false;
+  bool rememberMe = false;
 
   Future<void> _loginUser() async {
     // Validate form first
@@ -41,6 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final success = await _injectionContainer.loginUseCase(
         emailController.text.trim(),
         passwordController.text,
+        rememberMe: rememberMe,
       );
       print('Login result: $success');
 
@@ -137,7 +139,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       suffixIcon: emailController.text.isNotEmpty
                           ? GestureDetector(
-                              onTap: () => setState(() => emailController.clear()),
+                              onTap: () =>
+                                  setState(() => emailController.clear()),
                               child: const Icon(
                                 Icons.close,
                                 color: HandicraftColors.textSecondary,
@@ -146,13 +149,23 @@ class _LoginScreenState extends State<LoginScreen> {
                             )
                           : null,
                       enabledBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: HandicraftColors.borderLight, width: 1.5)),
+                        borderSide: BorderSide(
+                          color: HandicraftColors.borderLight,
+                          width: 1.5,
+                        ),
+                      ),
                       focusedBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: HandicraftColors.primary, width: 2)),
+                        borderSide: BorderSide(
+                          color: HandicraftColors.primary,
+                          width: 2,
+                        ),
+                      ),
                       errorBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red, width: 1.5)),
+                        borderSide: BorderSide(color: Colors.red, width: 1.5),
+                      ),
                       focusedErrorBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red, width: 2)),
+                        borderSide: BorderSide(color: Colors.red, width: 2),
+                      ),
                     ),
                     keyboardType: TextInputType.emailAddress,
                     onChanged: (v) => setState(() {}),
@@ -192,16 +205,28 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: HandicraftColors.textSecondary.withOpacity(0.6),
                       ),
                       enabledBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: HandicraftColors.borderLight, width: 1.5)),
+                        borderSide: BorderSide(
+                          color: HandicraftColors.borderLight,
+                          width: 1.5,
+                        ),
+                      ),
                       focusedBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: HandicraftColors.primary, width: 2)),
+                        borderSide: BorderSide(
+                          color: HandicraftColors.primary,
+                          width: 2,
+                        ),
+                      ),
                       errorBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red, width: 1.5)),
+                        borderSide: BorderSide(color: Colors.red, width: 1.5),
+                      ),
                       focusedErrorBorder: const UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.red, width: 2)),
+                        borderSide: BorderSide(color: Colors.red, width: 2),
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          showPassword ? Icons.visibility : Icons.visibility_off,
+                          showPassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                           color: HandicraftColors.textSecondary,
                           size: 22,
                         ),
@@ -242,7 +267,47 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
+
+                  // REMEMBER ME
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Checkbox(
+                          value: rememberMe,
+                          onChanged: (value) {
+                            setState(() {
+                              rememberMe = value ?? false;
+                            });
+                          },
+                          activeColor: HandicraftColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            rememberMe = !rememberMe;
+                          });
+                        },
+                        child: const Text(
+                          "Remember me",
+                          style: TextStyle(
+                            color: HandicraftColors.textPrimary,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 32),
 
                   // NEXT BUTTON
                   SizedBox(
@@ -289,7 +354,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const SignUpScreen()),
+                            builder: (context) => const SignUpScreen(),
+                          ),
                         );
                       },
                       child: RichText(

@@ -5,7 +5,7 @@ class LoginUseCase {
 
   LoginUseCase(this.repository);
 
-  Future<bool> call(String email, String password) async {
-    return await repository.login(email, password);
+  Future<bool> call(String email, String password, {bool rememberMe = true}) async {
+    return await repository.login(email, password, rememberMe: rememberMe);
   }
 }

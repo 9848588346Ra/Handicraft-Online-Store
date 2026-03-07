@@ -38,7 +38,7 @@ class RemoteDataSource {
     }
   }
 
-  Future<String> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await _dio.post('/login', data: {
         'email': email,
@@ -46,7 +46,9 @@ class RemoteDataSource {
       });
 
       if (response.statusCode == 200) {
-        return response.data['token']; // Assuming API returns a token
+        final token = response.data['token'] ?? '';
+        final user = response.data['user'];
+        return {'token': token, 'user': user};
       } else {
         throw Exception(response.data['message'] ?? 'Login failed');
       }

@@ -21,19 +21,22 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<bool> login(String email, String password) async {
+  Future<bool> login(String email, String password, {bool rememberMe = true}) async {
     try {
-      final token = await remoteDataSource.login(email, password);
+      final result = await remoteDataSource.login(email, password);
+      final token = result['token']?.toString() ?? '';
       
       if (token.isNotEmpty) {
-        // Save token or login status
-        await localDataSource.setLoggedIn(true);
-        // You might want to save the token too if your localDataSource supports it
-        
-        // Fetch user profile if needed to populate local user data
-        // final user = await remoteDataSource.getUserProfile(token);
-        // await localDataSource.setCurrentUser(user);
-        
+        if (rememberMe) {
+          await localDataSource.setLoggedIn(true);
+          final userData = result['user'];
+          if (userData != null && userData is Map) {
+            final userModel = UserModel.fromJson(Map<String, dynamic>.from(userData));
+            await localDataSource.setCurrentUser(userModel);
+          }
+        } else {
+          await localDataSource.setLoggedIn(false);
+        }
         return true;
       }
       return false;
