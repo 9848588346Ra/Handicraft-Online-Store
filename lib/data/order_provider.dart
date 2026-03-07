@@ -31,9 +31,18 @@ class OrderProvider extends ChangeNotifier {
         final list = jsonDecode(ongoingJson) as List<dynamic>?;
         if (list != null) {
           _ongoingOrders.clear();
+          final Map<String, String> dateAddressToOrderId = {};
           for (final e in list) {
-            if (e is Map<String, dynamic>) {
-              _ongoingOrders.add(OrderItem.fromJson(e));
+            if (e is Map) {
+              final item = OrderItem.fromJson(Map<String, dynamic>.from(e));
+              String orderId = item.orderId;
+              if (orderId.isEmpty) {
+                final key = '${item.date}|${item.address}';
+                orderId = dateAddressToOrderId.putIfAbsent(key, () => 'legacy_${DateTime.now().millisecondsSinceEpoch}_${dateAddressToOrderId.length}');
+                _ongoingOrders.add(item.copyWith(orderId: orderId));
+              } else {
+                _ongoingOrders.add(item);
+              }
             }
           }
         }
@@ -69,9 +78,11 @@ class OrderProvider extends ChangeNotifier {
 
   void addOngoingOrder(List<CartItem> items, String address) {
     final date = _formatDate(DateTime.now());
+    final orderId = DateTime.now().millisecondsSinceEpoch.toString();
     for (final item in items) {
       for (var i = 0; i < item.quantity; i++) {
         _ongoingOrders.add(OrderItem(
+          orderId: orderId,
           productName: item.name,
           imagePath: item.imagePath,
           price: '\$ ${item.price.toStringAsFixed(2)}',
@@ -80,6 +91,26 @@ class OrderProvider extends ChangeNotifier {
         ));
       }
     }
+    notifyListeners();
+    _saveToStorage();
+  }
+
+  void updateOrderAddress(String orderId, String newAddress) {
+    var updated = false;
+    for (var i = 0; i < _ongoingOrders.length; i++) {
+      if (_ongoingOrders[i].orderId == orderId) {
+        _ongoingOrders[i] = _ongoingOrders[i].copyWith(address: newAddress);
+        updated = true;
+      }
+    }
+    if (updated) {
+      notifyListeners();
+      _saveToStorage();
+    }
+  }
+
+  void removeOrder(String orderId) {
+    _ongoingOrders.removeWhere((o) => o.orderId == orderId);
     notifyListeners();
     _saveToStorage();
   }

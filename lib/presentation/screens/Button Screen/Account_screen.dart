@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:handicraft_online_store/core/di/injection_container.dart';
 import 'package:handicraft_online_store/data/profile_provider.dart';
 import 'package:handicraft_online_store/domain/entities/user_entity.dart';
-import 'package:handicraft_online_store/presentation/screens/welcome.dart';
+import 'package:handicraft_online_store/presentation/screens/Button Screen/delivery_address_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/my_details_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/orders_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/login_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/welcome.dart';
+import 'package:image_picker/image_picker.dart';
 
 const Color _primaryPurple = Color(0xFF5E35B1);
 const Color _lightBlue = Color(0xFFE3F2FD);
@@ -74,6 +77,64 @@ class _AccountScreenState extends State<AccountScreen> {
     }
   }
 
+  Future<void> _pickProfileImage(ImageSource source, UserEntity user) async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: source, maxWidth: 512, maxHeight: 512, imageQuality: 85);
+    if (picked != null) {
+      await ProfileProvider.instance.updateProfile(email: user.email, profileImagePath: picked.path);
+      if (mounted) setState(() {});
+    }
+  }
+
+  void _showImagePickerOptions(BuildContext context, UserEntity user) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Change profile photo', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey.shade800)),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: _primaryPurple.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.camera_alt, color: _primaryPurple),
+                  ),
+                  title: const Text('Camera'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _pickProfileImage(ImageSource.camera, user);
+                  },
+                ),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: _primaryPurple.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.photo_library, color: _primaryPurple),
+                  ),
+                  title: const Text('Gallery'),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    _pickProfileImage(ImageSource.gallery, user);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,7 +152,7 @@ class _AccountScreenState extends State<AccountScreen> {
               const SizedBox(height: 12),
               _buildOptionsCard(context),
               const SizedBox(height: 24),
-              _buildLogoutButton(context),
+              _buildLogoutOrLoginButton(context),
               const SizedBox(height: 32),
             ],
           ),
@@ -132,61 +193,81 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget _buildProfileCard(BuildContext context) {
     return FutureBuilder<UserEntity?>(
       future: _loadUserAndProfile(),
-      builder: (context, snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<UserEntity?> snapshot) {
         final user = snapshot.data;
         final profile = ProfileProvider.instance;
         final name = profile.name?.isNotEmpty == true ? profile.name! : (user?.name.isNotEmpty == true ? user!.name : 'User');
         final email = user?.email.isNotEmpty == true ? user!.email : '';
         final phone = profile.phone;
         final address = profile.address;
-        final imagePath = profile.profileImagePath;
 
-        return Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: user != null ? () => _openMyDetails(context, user) : null,
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
+        return ListenableBuilder(
+          listenable: ProfileProvider.instance,
+          builder: (BuildContext ctx, _) {
+            final currentImagePath = ProfileProvider.instance.profileImagePath;
+            return Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: user != null ? () => _openMyDetails(ctx, user) : null,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.grey.shade100),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(color: _lightBlue, borderRadius: BorderRadius.circular(20), border: Border.all(color: _primaryPurple.withOpacity(0.2))),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
-                          child: imagePath != null && File(imagePath).existsSync()
-                              ? Image.file(File(imagePath), fit: BoxFit.cover)
-                              : Icon(Icons.person, size: 40, color: _primaryPurple.withOpacity(0.8)),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'open sans bold', color: Colors.black87)),
-                            if (email.isNotEmpty)
-                              Text(email, style: TextStyle(fontSize: 14, color: Colors.grey.shade600), overflow: TextOverflow.ellipsis)
-                            else
-                              Text('Sign in to sync your profile', style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
-                          ],
-                        ),
-                      ),
-                    ],
+                child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey.shade100),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
                   ),
-                  if (phone != null && phone.isNotEmpty) ...[
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: user != null ? () => _showImagePickerOptions(ctx, user) : null,
+                            child: Stack(
+                              children: [
+                                Container(
+                                  width: 72,
+                                  height: 72,
+                                  decoration: BoxDecoration(color: _lightBlue, borderRadius: BorderRadius.circular(20), border: Border.all(color: _primaryPurple.withOpacity(0.2))),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(18),
+                                    child: currentImagePath != null && File(currentImagePath).existsSync()
+                                        ? Image.file(File(currentImagePath), fit: BoxFit.cover)
+                                        : Icon(Icons.person, size: 40, color: _primaryPurple.withOpacity(0.8)),
+                                  ),
+                                ),
+                                if (user != null)
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: BoxDecoration(color: _primaryPurple, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
+                                      child: const Icon(Icons.camera_alt, color: Colors.white, size: 16),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'open sans bold', color: Colors.black87)),
+                                if (email.isNotEmpty)
+                                  Text(email, style: TextStyle(fontSize: 14, color: Colors.grey.shade600), overflow: TextOverflow.ellipsis)
+                                else
+                                  Text('Sign in to sync your profile', style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (phone != null && phone.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     Row(
                       children: [
@@ -213,6 +294,8 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
         );
       },
+    );
+  },
     );
   }
 
@@ -245,7 +328,7 @@ class _AccountScreenState extends State<AccountScreen> {
         final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => const MyDetailsScreen()));
         if (result == true && mounted) setState(() {});
       }),
-      _AccountOption(Icons.location_on_outlined, 'Delivery Address', 'Manage addresses', () {}),
+      _AccountOption(Icons.location_on_outlined, 'Delivery Address', 'Manage addresses', () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DeliveryAddressScreen()))),
       _AccountOption(Icons.help_outline, 'Help', 'FAQs & support', () {}),
       _AccountOption(Icons.info_outline, 'About', 'App version & info', () {}),
     ];
@@ -302,35 +385,78 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.red.shade100),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => _handleLogout(context),
-            borderRadius: BorderRadius.circular(16),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.logout, size: 22, color: Colors.red.shade400),
-                  const SizedBox(width: 12),
-                  Text('Log Out', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold', color: Colors.red.shade400)),
-                ],
+  Widget _buildLogoutOrLoginButton(BuildContext context) {
+    return FutureBuilder<UserEntity?>(
+      future: _loadUserAndProfile(),
+      builder: (context, snapshot) {
+        final user = snapshot.data;
+        final isLoggedIn = user != null && user.email.isNotEmpty;
+
+        if (isLoggedIn) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.red.shade100),
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => _handleLogout(context),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.logout, size: 22, color: Colors.red.shade400),
+                        const SizedBox(width: 12),
+                        Text('Log Out', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold', color: Colors.red.shade400)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: _primaryPurple.withOpacity(0.3)),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                ),
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.login, size: 22, color: _primaryPurple),
+                      const SizedBox(width: 12),
+                      Text('Log In', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold', color: _primaryPurple)),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

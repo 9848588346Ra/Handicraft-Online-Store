@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:handicraft_online_store/data/cart_provider.dart';
 import 'package:handicraft_online_store/data/models/cart_item.dart';
-import 'package:handicraft_online_store/presentation/screens/Button Screen/account_screen.dart';
-import 'package:handicraft_online_store/presentation/screens/Button Screen/cart_screen.dart';
-import 'package:handicraft_online_store/presentation/screens/Button Screen/explore_screen.dart';
-import 'package:handicraft_online_store/presentation/screens/Button Screen/shop_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/Button Screen/Account_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/Button Screen/Cart_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/Button Screen/Explore_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/Button Screen/Shop_Screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

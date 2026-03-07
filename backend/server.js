@@ -21,22 +21,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Debug Route to check users
-app.get('/api/users', async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// MongoDB Connection
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('✅ Connected to MongoDB at ' + MONGO_URI))
-  .catch(err => console.error('❌ MongoDB Connection Error:', err));
-
-// User Schema
+// User Schema (must be defined before routes that use it)
 const userSchema = new mongoose.Schema({
   name: { type: String, required: false },
   email: { type: String, required: true, unique: true },
@@ -44,6 +29,24 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', userSchema);
+
+// MongoDB Connection
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('✅ Connected to MongoDB Atlas'))
+  .catch(err => {
+    console.error('❌ MongoDB Connection Error:', err.message);
+    process.exit(1);
+  });
+
+// Debug Route to check users
+app.get('/api/users', async (req, res) => {
+  try {
+    const users = await User.find({}).select('-password');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Routes
 // 1. Register

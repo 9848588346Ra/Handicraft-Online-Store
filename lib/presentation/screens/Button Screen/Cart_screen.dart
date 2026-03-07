@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:handicraft_online_store/data/cart_provider.dart';
+import 'package:handicraft_online_store/data/delivery_address_provider.dart';
 import 'package:handicraft_online_store/data/models/cart_item.dart';
+import 'package:handicraft_online_store/data/models/delivery_address.dart';
 import 'package:handicraft_online_store/data/order_provider.dart';
 
 const Color _primaryPurple = Color(0xFF5E35B1);
@@ -452,8 +454,16 @@ class _CheckoutModalState extends State<_CheckoutModal> {
   bool _addressExpanded = false;
   bool _addressFilled = false;
   String _savedAddressSummary = '';
+  DeliveryAddress? _selectedAddress;
+  bool _showManualForm = false;
 
   final _nameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    DeliveryAddressProvider.instance.load();
+  }
   final _streetController = TextEditingController();
   final _cityController = TextEditingController();
   final _stateController = TextEditingController();
@@ -471,6 +481,16 @@ class _CheckoutModalState extends State<_CheckoutModal> {
     super.dispose();
   }
 
+  void _selectSavedAddress(DeliveryAddress addr) {
+    setState(() {
+      _selectedAddress = addr;
+      _addressFilled = true;
+      _savedAddressSummary = '${addr.type.label}: ${addr.shortSummary}';
+      _addressExpanded = false;
+      _showManualForm = false;
+    });
+  }
+
   void _saveAddress() {
     final name = _nameController.text.trim();
     final street = _streetController.text.trim();
@@ -485,13 +505,16 @@ class _CheckoutModalState extends State<_CheckoutModal> {
       return;
     }
     setState(() {
+      _selectedAddress = null;
       _addressFilled = true;
       _savedAddressSummary = '$street, $city';
       _addressExpanded = false;
+      _showManualForm = false;
     });
   }
 
-  String get _fullAddress {
+  String get _addressStringForOrder {
+    if (_selectedAddress != null) return _selectedAddress!.orderAddressString;
     return '${_nameController.text.trim()}, ${_streetController.text.trim()}, ${_cityController.text.trim()}, ${_stateController.text.trim()} ${_zipController.text.trim()}, ${_phoneController.text.trim()}';
   }
 
@@ -507,7 +530,7 @@ class _CheckoutModalState extends State<_CheckoutModal> {
       setState(() => _addressExpanded = true);
       return;
     }
-    widget.onPlaceOrder(_fullAddress);
+    widget.onPlaceOrder(_addressStringForOrder);
   }
 
   @override
@@ -549,7 +572,7 @@ class _CheckoutModalState extends State<_CheckoutModal> {
                       _buildSection('Payment', _paymentExpanded ? 'COD' : _paymentMethod, () => setState(() => _paymentExpanded = !_paymentExpanded)),
                       if (_paymentExpanded) _buildPaymentOptions(),
                       _buildSection('Address', _addressFilled ? _savedAddressSummary : 'Select delivery address', () => setState(() => _addressExpanded = !_addressExpanded)),
-                      if (_addressExpanded) _buildAddressForm(),
+                      if (_addressExpanded) _buildAddressSection(),
                       _buildSection('Total Cost', '\$ ${widget.total.toStringAsFixed(2)}', null),
                       const SizedBox(height: 16),
                       RichText(
@@ -650,6 +673,106 @@ class _CheckoutModalState extends State<_CheckoutModal> {
     );
   }
 
+  Widget _buildAddressSection() {
+    return ListenableBuilder(
+      listenable: DeliveryAddressProvider.instance,
+      builder: (context, _) {
+        final addrs = DeliveryAddressProvider.instance.addresses;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (addrs.isNotEmpty) ...[
+                Text('Saved addresses', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade700)),
+                const SizedBox(height: 12),
+                ...addrs.map((addr) => _buildSavedAddressOption(addr)),
+                const SizedBox(height: 16),
+                Divider(height: 1, color: Colors.grey.shade200),
+                const SizedBox(height: 16),
+              ],
+              InkWell(
+                onTap: () => setState(() => _showManualForm = !_showManualForm),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: _showManualForm ? _primaryPurple.withOpacity(0.08) : Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: _showManualForm ? _primaryPurple : Colors.grey.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.add_location_alt_outlined, size: 22, color: _primaryPurple),
+                      const SizedBox(width: 12),
+                      Text(_showManualForm ? 'Hide new address form' : 'Add new address', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: _primaryPurple)),
+                    ],
+                  ),
+                ),
+              ),
+              if (_showManualForm) ...[
+                const SizedBox(height: 20),
+                _buildAddressForm(),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSavedAddressOption(DeliveryAddress addr) {
+    final typeColor = addr.type.color;
+    final isSelected = _selectedAddress?.id == addr.id;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _selectSavedAddress(addr),
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: isSelected ? _primaryPurple.withOpacity(0.08) : Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: isSelected ? _primaryPurple : Colors.grey.shade200, width: isSelected ? 2 : 1),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: typeColor.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
+                  child: Icon(addr.type.icon, size: 22, color: typeColor),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(addr.type.label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: typeColor)),
+                          if (isSelected) ...[
+                            const SizedBox(width: 8),
+                            Icon(Icons.check_circle, size: 16, color: _primaryPurple),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(addr.fullName, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87)),
+                      Text(addr.shortSummary, style: TextStyle(fontSize: 13, color: Colors.grey.shade600)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildAddressForm() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
@@ -681,7 +804,7 @@ class _CheckoutModalState extends State<_CheckoutModal> {
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text('Save Address'),
+              child: const Text('Use this address'),
             ),
           ),
         ],

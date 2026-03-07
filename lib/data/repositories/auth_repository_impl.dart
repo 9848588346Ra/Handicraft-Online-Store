@@ -2,6 +2,7 @@ import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/local_storage_datasource.dart';
 import '../datasources/remote_datasource.dart';
+import '../models/user_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final LocalStorageDataSource localDataSource;
@@ -22,17 +23,17 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<bool> login(String email, String password) async {
     try {
-      final token = await remoteDataSource.login(email, password);
+      final result = await remoteDataSource.login(email, password);
+      final token = result['token'] as String? ?? '';
       
       if (token.isNotEmpty) {
-        // Save token or login status
         await localDataSource.setLoggedIn(true);
-        // You might want to save the token too if your localDataSource supports it
-        
-        // Fetch user profile if needed to populate local user data
-        // final user = await remoteDataSource.getUserProfile(token);
-        // await localDataSource.setCurrentUser(user);
-        
+        // Use user from API if available, else create from email
+        final userData = result['user'] as Map<String, dynamic>?;
+        final name = userData?['name'] as String? ?? email.split('@').first;
+        final userModel = UserModel(name: name, email: email, password: '');
+        await localDataSource.saveUser(userModel);
+        await localDataSource.setCurrentUser(userModel);
         return true;
       }
       return false;
