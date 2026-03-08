@@ -43,6 +43,19 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
+  /// Removes multiple items by indices. Indices are removed from highest to
+  /// lowest to avoid index shifting issues.
+  void removeItemsAtIndices(List<int> indices) {
+    if (indices.isEmpty) return;
+    final sorted = List<int>.from(indices)..sort((a, b) => b.compareTo(a));
+    for (final i in sorted) {
+      if (i >= 0 && i < _items.length) {
+        _items.removeAt(i);
+      }
+    }
+    notifyListeners();
+  }
+
   void clear() {
     _items.clear();
     notifyListeners();

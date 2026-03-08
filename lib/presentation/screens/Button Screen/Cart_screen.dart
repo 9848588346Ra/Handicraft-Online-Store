@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:handicraft_online_store/core/di/injection_container.dart';
@@ -7,6 +9,7 @@ import 'package:handicraft_online_store/data/delivery_address_provider.dart';
 import 'package:handicraft_online_store/data/models/cart_item.dart';
 import 'package:handicraft_online_store/data/models/delivery_address.dart';
 import 'package:handicraft_online_store/data/order_provider.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 const Color _primaryPurple = Color(0xFF5E35B1);
 
@@ -20,6 +23,78 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  final Set<int> _selectedIndices = {};
+  StreamSubscription<AccelerometerEvent>? _accelSubscription;
+  DateTime? _lastShakeTime;
+  static const Duration _shakeCooldown = Duration(milliseconds: 400);
+  double? _lastMagnitude;
+  // Raw accelerometer: ~9.8 when still, spikes when shaking.
+  // Use delta: sudden change > 5 m/s² = shake (works across devices).
+  static const double _shakeDeltaThreshold = 5.0;
+  // Fallback: absolute magnitude² > 130 (~11.4 m/s²) for gentle shake.
+  static const double _shakeMagnitudeSq = 130.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _accelSubscription = accelerometerEventStream().listen(
+      _onAccelerometer,
+      onError: (_) {},
+      cancelOnError: false,
+    );
+  }
+
+  @override
+  void dispose() {
+    _accelSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _onAccelerometer(AccelerometerEvent event) {
+    final magnitudeSq = event.x * event.x + event.y * event.y + event.z * event.z;
+    final magnitude = magnitudeSq > 0 ? math.sqrt(magnitudeSq) : 0.0;
+
+    bool detected = magnitudeSq > _shakeMagnitudeSq;
+    if (!detected && _lastMagnitude != null) {
+      final delta = (magnitude - _lastMagnitude!).abs();
+      if (delta > _shakeDeltaThreshold) detected = true;
+    }
+    _lastMagnitude = magnitude;
+
+    if (detected) {
+      final now = DateTime.now();
+      if (_lastShakeTime == null || now.difference(_lastShakeTime!) > _shakeCooldown) {
+        _lastShakeTime = now;
+        _onShakeDetected();
+      }
+    }
+  }
+
+  void _onShakeDetected() {
+    if (_selectedIndices.isEmpty) return;
+    if (!mounted) return;
+    final indices = _selectedIndices.toList();
+    CartProvider.instance.removeItemsAtIndices(indices);
+    setState(() => _selectedIndices.clear());
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${indices.length} item(s) removed'),
+        backgroundColor: Colors.orange,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _toggleSelection(int index) {
+    setState(() {
+      if (_selectedIndices.contains(index)) {
+        _selectedIndices.remove(index);
+      } else {
+        _selectedIndices.add(index);
+      }
+    });
+  }
+
   Future<void> _openCheckoutModal() async {
     final items = CartProvider.instance.items;
     if (items.isEmpty) {
@@ -113,9 +188,24 @@ class _CartScreenState extends State<CartScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                child: Text(
-                  '$itemCount items in your cart',
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                child: Row(
+                  children: [
+                    Text(
+                      '$itemCount items in your cart',
+                      style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                    ),
+                    const Spacer(),
+                    if (_selectedIndices.isNotEmpty)
+                      Text(
+                        '${_selectedIndices.length} selected • Shake to delete',
+                        style: TextStyle(fontSize: 12, color: _primaryPurple, fontWeight: FontWeight.w600),
+                      )
+                    else
+                      Text(
+                        'Tap item to select',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                      ),
+                  ],
                 ),
               ),
               Expanded(
@@ -280,12 +370,24 @@ Widget _buildCartItems(List<CartItem> items) {
   }
 
 Widget _buildCartItemRow(CartItem item, int index) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
+    final isSelected = _selectedIndices.contains(index);
+    return Material(
+      color: isSelected ? _primaryPurple.withOpacity(0.08) : Colors.transparent,
+      child: InkWell(
+        onTap: () => _toggleSelection(index),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Checkbox(
+                value: isSelected,
+                onChanged: (_) => _toggleSelection(index),
+                activeColor: _primaryPurple,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+              ),
+              const SizedBox(width: 8),
+              ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: _buildImage(item.imagePath),
           ),
@@ -332,10 +434,12 @@ Widget _buildCartItemRow(CartItem item, int index) {
           ),
         ],
       ),
+    ),
+    ),
     );
   }
 
-Widget _buildImage(String path) {
+  Widget _buildImage(String path) {
     final errorWidget = Container(
       width: 72,
       height: 72,
