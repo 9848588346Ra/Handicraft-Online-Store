@@ -6,7 +6,9 @@ import 'package:handicraft_online_store/presentation/screens/login_screen.dart';
 const Color _primaryPurple = Color(0xFF5E35B1);
 
 class SignUpScreen extends StatefulWidget {
-  const SignUpScreen({super.key});
+  const SignUpScreen({super.key, this.returnToCart = false});
+
+  final bool returnToCart;
 
   @override
   State<SignUpScreen> createState() => _SignUpScreenState();
@@ -61,7 +63,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         );
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          MaterialPageRoute(builder: (context) => LoginScreen(returnToCart: widget.returnToCart)),
         );
       }
     } catch (e) {

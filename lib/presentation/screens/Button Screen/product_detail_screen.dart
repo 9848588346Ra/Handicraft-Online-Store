@@ -74,7 +74,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.share, color: Colors.white),
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Share coming soon'), behavior: SnackBarBehavior.floating),
+              );
+            },
           ),
         ],
       ),

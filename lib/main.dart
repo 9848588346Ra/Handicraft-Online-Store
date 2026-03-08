@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:handicraft_online_store/app.dart';
 import 'package:handicraft_online_store/core/di/injection_container.dart';
+import 'package:handicraft_online_store/core/services/auto_brightness_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize dependency injection (includes Hive initialization)
   await InjectionContainer().init();
 
-  // MaterialApp -> Parent container
-  // Scaffold -> Screen structure
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    AutoBrightnessService.instance.start();
+  });
+
   runApp(const App());
 }

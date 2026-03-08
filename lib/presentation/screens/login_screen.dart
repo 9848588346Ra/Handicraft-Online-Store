@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:handicraft_online_store/core/di/injection_container.dart';
+import 'package:handicraft_online_store/core/services/biometric_auth_service.dart';
 import 'package:handicraft_online_store/presentation/screens/Dashboard_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/face_lock_verification_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/signup_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.returnToCart = false});
+
+  final bool returnToCart;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -18,6 +22,26 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
   bool showPassword = false;
+
+  Future<void> _loginWithFaceLock() async {
+    final enabled = await BiometricAuthService.instance.isFaceLockEnabled();
+    if (!enabled && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Log in with email first, then enable Face Lock in Account settings'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    if (!mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const FaceLockVerificationScreen(isEnabling: false),
+      ),
+    );
+  }
 
   Future<void> _loginUser() async {
     // Validate form first
@@ -40,10 +64,14 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       if (mounted) {
         if (success) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const DashboardScreen()),
-          );
+          if (widget.returnToCart) {
+            Navigator.pop(context, true);
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const DashboardScreen()),
+            );
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Invalid email or password"), behavior: SnackBarBehavior.floating),
@@ -206,6 +234,73 @@ class _LoginScreenState extends State<LoginScreen> {
                   : const Text("Login", style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, fontFamily: 'open sans bold')),
             ),
           ),
+          ...[
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    'or',
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade500, fontWeight: FontWeight.w500),
+                  ),
+                ),
+                Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: isLoading ? null : _loginWithFaceLock,
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: _primaryPurple.withOpacity(0.06),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: _primaryPurple.withOpacity(0.3), width: 1.5),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: _primaryPurple.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(Icons.face_retouching_natural, size: 24, color: _primaryPurple),
+                      ),
+                      const SizedBox(width: 14),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Login with Face Lock',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              fontFamily: 'open sans bold',
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Quick & secure sign in',
+                            style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

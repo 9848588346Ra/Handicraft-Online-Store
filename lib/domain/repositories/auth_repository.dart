@@ -8,4 +8,5 @@ abstract class AuthRepository {
   Future<UserEntity?> getCurrentUser();
   Future<UserEntity?> getUserByEmail(String email);
   Future<void> updatePassword(String email, String newPassword);
+  Future<void> restoreSessionFromBiometric(String email, String name);
 }

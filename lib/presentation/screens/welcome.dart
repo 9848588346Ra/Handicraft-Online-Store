@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:handicraft_online_store/presentation/screens/Dashboard_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/login_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/signup_screen.dart';
 
 const Color _primaryPurple = Color(0xFF5E35B1);
 
@@ -12,24 +14,25 @@ class WelcomeScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF5F6F8),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              // --- Logo and Store Name ---
+              const Spacer(flex: 2),
               Image.asset(
                 'assets/images/image 8.png',
-                height: 150,
-                width: 150,
+                height: 140,
+                width: 140,
+                errorBuilder: (_, __, ___) => Icon(Icons.store, size: 100, color: _primaryPurple.withValues(alpha: 0.6)),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 16),
               const Text(
                 'HANDICRAFT',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
+                  letterSpacing: 2,
                   fontFamily: 'open sans bold',
                   color: Colors.black87,
                 ),
@@ -39,15 +42,14 @@ class WelcomeScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  letterSpacing: 1.5,
+                  letterSpacing: 2,
                   fontFamily: 'open sans bold',
                   color: _primaryPurple,
                 ),
               ),
-              const SizedBox(height: 50),
-              // --- Welcome Heading & Subtitle ---
+              const SizedBox(height: 40),
               const Text(
-                'Welcome !!!',
+                'Welcome',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -57,46 +59,78 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Get your favourites at your doorstep',
+                'Discover handcrafted treasures delivered to your doorstep',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   color: Colors.grey.shade600,
+                  height: 1.4,
                 ),
               ),
-              const SizedBox(height: 80),
-              // --- Get Started Button with Navigation ---
+              const Spacer(flex: 2),
               SizedBox(
                 width: double.infinity,
-                height: 56,
+                height: 54,
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const DashboardScreen(),
-                      ),
+                      MaterialPageRoute(builder: (context) => const DashboardScreen()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _primaryPurple,
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     elevation: 0,
                   ),
                   child: const Text(
-                    'Get Started',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      fontFamily: 'open sans bold',
-                      letterSpacing: 0.5,
-                    ),
+                    'Continue as Guest',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold'),
                   ),
                 ),
               ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LoginScreen()),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: _primaryPurple,
+                        side: const BorderSide(color: _primaryPurple),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: const Text('Sign In', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: _primaryPurple,
+                        side: const BorderSide(color: _primaryPurple),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: const Text('Create Account', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
             ],
           ),
         ),

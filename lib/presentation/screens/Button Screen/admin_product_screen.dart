@@ -26,7 +26,14 @@ class AdminProductScreen extends StatelessWidget {
               foregroundColor: _primaryPurple,
             ),
           ),
-          title: const Text('Manage Products', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'open sans bold')),
+          title: const Text(
+            'Manage Products',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'open sans bold',
+            ),
+          ),
           backgroundColor: Colors.white,
           foregroundColor: Colors.black87,
           elevation: 0,
@@ -42,11 +49,7 @@ class AdminProductScreen extends StatelessWidget {
           ),
         ),
         body: TabBarView(
-          children: [
-            _AddProductTab(),
-            _EditProductTab(),
-            _RemoveProductTab(),
-          ],
+          children: [_AddProductTab(), _EditProductTab(), _RemoveProductTab()],
         ),
       ),
     );
@@ -64,7 +67,13 @@ class _AddProductTabState extends State<_AddProductTab> {
   final _priceController = TextEditingController();
   String? _pickedImagePath;
   String _selectedCategory = 'General';
-  static const List<String> _categories = ['General', 'Felt Toys', 'Decorations', 'Accessories', 'Home Decor'];
+  static const List<String> _categories = [
+    'General',
+    'Felt Toys',
+    'Decorations',
+    'Accessories',
+    'Home Decor',
+  ];
 
   @override
   void dispose() {
@@ -75,7 +84,12 @@ class _AddProductTabState extends State<_AddProductTab> {
 
   Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: source, maxWidth: 1024, maxHeight: 1024, imageQuality: 85);
+    final picked = await picker.pickImage(
+      source: source,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 85,
+    );
     if (picked != null && mounted) {
       setState(() => _pickedImagePath = picked.path);
     }
@@ -85,7 +99,11 @@ class _AddProductTabState extends State<_AddProductTab> {
     if (!_formKey.currentState!.validate()) return;
     if (_pickedImagePath == null || _pickedImagePath!.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please add a product photo'), backgroundColor: Colors.orange, behavior: SnackBarBehavior.floating),
+        const SnackBar(
+          content: Text('Please add a product photo'),
+          backgroundColor: Colors.orange,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
       return;
     }
@@ -98,18 +116,24 @@ class _AddProductTabState extends State<_AddProductTab> {
     final persistentPath = await copyToPersistentStorage(_pickedImagePath!);
     final imagePath = persistentPath ?? _pickedImagePath!;
 
-    ProductProvider.instance.addProduct(ProductModel(
-      id: '',
-      title: title,
-      price: priceStr,
-      imagePath: imagePath,
-      category: category,
-    ));
+    ProductProvider.instance.addProduct(
+      ProductModel(
+        id: '',
+        title: title,
+        price: priceStr,
+        imagePath: imagePath,
+        category: category,
+      ),
+    );
     _titleController.clear();
     _priceController.clear();
     setState(() => _pickedImagePath = null);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Product added'), backgroundColor: Colors.green, behavior: SnackBarBehavior.floating),
+      const SnackBar(
+        content: Text('Product added'),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 
@@ -125,22 +149,27 @@ class _AddProductTabState extends State<_AddProductTab> {
             TextFormField(
               controller: _titleController,
               decoration: _inputDecoration('Product title'),
-              validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+              validator: (v) =>
+                  v == null || v.trim().isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _priceController,
               decoration: _inputDecoration('Price (e.g. 10 or \$10)'),
-              validator: (v) => v == null || v.trim().isEmpty ? 'Required' : null,
+              validator: (v) =>
+                  v == null || v.trim().isEmpty ? 'Required' : null,
             ),
             const SizedBox(height: 16),
             _buildImagePickerSection(),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _selectedCategory,
+              initialValue: _selectedCategory,
               decoration: _inputDecoration('Category'),
-              items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
-              onChanged: (v) => setState(() => _selectedCategory = v ?? 'General'),
+              items: _categories
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                  .toList(),
+              onChanged: (v) =>
+                  setState(() => _selectedCategory = v ?? 'General'),
             ),
             const SizedBox(height: 24),
             ElevatedButton(
@@ -149,9 +178,18 @@ class _AddProductTabState extends State<_AddProductTab> {
                 backgroundColor: _primaryPurple,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
-              child: const Text('Add Product', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold')),
+              child: const Text(
+                'Add Product',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'open sans bold',
+                ),
+              ),
             ),
           ],
         ),
@@ -165,12 +203,22 @@ class _AddProductTabState extends State<_AddProductTab> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _pickedImagePath != null ? Colors.green : Colors.grey.shade300, width: _pickedImagePath != null ? 2 : 1),
+        border: Border.all(
+          color: _pickedImagePath != null ? Colors.green : Colors.grey.shade300,
+          width: _pickedImagePath != null ? 2 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Product photo', style: TextStyle(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.w500)),
+          Text(
+            'Product photo',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           const SizedBox(height: 12),
           if (_pickedImagePath != null) ...[
             ClipRRect(
@@ -225,11 +273,11 @@ class _AddProductTabState extends State<_AddProductTab> {
   }
 
   InputDecoration _inputDecoration(String label) => InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        filled: true,
-        fillColor: Colors.white,
-      );
+    labelText: label,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+    filled: true,
+    fillColor: Colors.white,
+  );
 }
 
 class _EditProductTab extends StatelessWidget {
@@ -241,7 +289,10 @@ class _EditProductTab extends StatelessWidget {
         final products = ProductProvider.instance.products;
         if (products.isEmpty) {
           return Center(
-            child: Text('No products to edit. Add products first.', style: TextStyle(fontSize: 15, color: Colors.grey.shade600)),
+            child: Text(
+              'No products to edit. Add products first.',
+              style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+            ),
           );
         }
         return ListView.builder(
@@ -290,7 +341,9 @@ class _EditProductSheetState extends State<_EditProductSheet> {
     _titleController = TextEditingController(text: widget.product.title);
     _priceController = TextEditingController(text: widget.product.price);
     _categoryController = TextEditingController(text: widget.product.category);
-    _pickedImagePath = widget.product.imagePath.isNotEmpty && !widget.product.imagePath.startsWith('assets/')
+    _pickedImagePath =
+        widget.product.imagePath.isNotEmpty &&
+            !widget.product.imagePath.startsWith('assets/')
         ? widget.product.imagePath
         : null;
   }
@@ -305,14 +358,20 @@ class _EditProductSheetState extends State<_EditProductSheet> {
 
   Future<void> _pickImage(ImageSource source) async {
     final picker = ImagePicker();
-    final picked = await picker.pickImage(source: source, maxWidth: 1024, maxHeight: 1024, imageQuality: 85);
+    final picked = await picker.pickImage(
+      source: source,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 85,
+    );
     if (picked != null && mounted) {
       setState(() => _pickedImagePath = picked.path);
     }
   }
 
   String get _effectiveImagePath {
-    if (_pickedImagePath != null && _pickedImagePath!.isNotEmpty) return _pickedImagePath!;
+    if (_pickedImagePath != null && _pickedImagePath!.isNotEmpty)
+      return _pickedImagePath!;
     return widget.product.imagePath;
   }
 
@@ -320,7 +379,9 @@ class _EditProductSheetState extends State<_EditProductSheet> {
   Widget build(BuildContext context) {
     final isAssetPath = widget.product.imagePath.startsWith('assets/');
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: const BoxDecoration(
@@ -332,15 +393,40 @@ class _EditProductSheetState extends State<_EditProductSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Edit: ${widget.product.title}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'open sans bold')),
+              Text(
+                'Edit: ${widget.product.title}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'open sans bold',
+                ),
+              ),
               const SizedBox(height: 16),
-              TextField(controller: _titleController, decoration: const InputDecoration(labelText: 'Title', border: OutlineInputBorder())),
+              TextField(
+                controller: _titleController,
+                decoration: const InputDecoration(
+                  labelText: 'Title',
+                  border: OutlineInputBorder(),
+                ),
+              ),
               const SizedBox(height: 12),
-              TextField(controller: _priceController, decoration: const InputDecoration(labelText: 'Price', border: OutlineInputBorder())),
+              TextField(
+                controller: _priceController,
+                decoration: const InputDecoration(
+                  labelText: 'Price',
+                  border: OutlineInputBorder(),
+                ),
+              ),
               const SizedBox(height: 12),
               _buildEditImageSection(isAssetPath),
               const SizedBox(height: 12),
-              TextField(controller: _categoryController, decoration: const InputDecoration(labelText: 'Category', border: OutlineInputBorder())),
+              TextField(
+                controller: _categoryController,
+                decoration: const InputDecoration(
+                  labelText: 'Category',
+                  border: OutlineInputBorder(),
+                ),
+              ),
               const SizedBox(height: 20),
               Row(
                 children: [
@@ -356,27 +442,46 @@ class _EditProductSheetState extends State<_EditProductSheet> {
                         var imagePath = _effectiveImagePath;
                         if (imagePath.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please add a product photo'), backgroundColor: Colors.orange, behavior: SnackBarBehavior.floating),
+                            const SnackBar(
+                              content: Text('Please add a product photo'),
+                              backgroundColor: Colors.orange,
+                              behavior: SnackBarBehavior.floating,
+                            ),
                           );
                           return;
                         }
                         // Copy new picks to permanent storage (picked paths are temporary)
-                        if (_pickedImagePath != null && !imagePath.startsWith('assets/')) {
-                          final persistentPath = await copyToPersistentStorage(_pickedImagePath!);
-                          if (persistentPath != null) imagePath = persistentPath;
+                        if (_pickedImagePath != null &&
+                            !imagePath.startsWith('assets/')) {
+                          final persistentPath = await copyToPersistentStorage(
+                            _pickedImagePath!,
+                          );
+                          if (persistentPath != null)
+                            imagePath = persistentPath;
                         }
-                        ProductProvider.instance.updateProduct(widget.product.copyWith(
-                          title: _titleController.text.trim(),
-                          price: _priceController.text.trim(),
-                          imagePath: imagePath,
-                          category: _categoryController.text.trim().isEmpty ? 'General' : _categoryController.text.trim(),
-                        ));
+                        ProductProvider.instance.updateProduct(
+                          widget.product.copyWith(
+                            title: _titleController.text.trim(),
+                            price: _priceController.text.trim(),
+                            imagePath: imagePath,
+                            category: _categoryController.text.trim().isEmpty
+                                ? 'General'
+                                : _categoryController.text.trim(),
+                          ),
+                        );
                         if (context.mounted) Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Product updated'), backgroundColor: Colors.green, behavior: SnackBarBehavior.floating),
+                          const SnackBar(
+                            content: Text('Product updated'),
+                            backgroundColor: Colors.green,
+                            behavior: SnackBarBehavior.floating,
+                          ),
                         );
                       },
-                      style: ElevatedButton.styleFrom(backgroundColor: _primaryPurple, foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _primaryPurple,
+                        foregroundColor: Colors.white,
+                      ),
                       child: const Text('Save'),
                     ),
                   ),
@@ -395,22 +500,45 @@ class _EditProductSheetState extends State<_EditProductSheet> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: _effectiveImagePath.isNotEmpty ? Colors.green : Colors.grey.shade300, width: _effectiveImagePath.isNotEmpty ? 2 : 1),
+        border: Border.all(
+          color: _effectiveImagePath.isNotEmpty
+              ? Colors.green
+              : Colors.grey.shade300,
+          width: _effectiveImagePath.isNotEmpty ? 2 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Product photo', style: TextStyle(fontSize: 14, color: Colors.grey.shade700, fontWeight: FontWeight.w500)),
+          Text(
+            'Product photo',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade700,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           const SizedBox(height: 12),
           if (_pickedImagePath != null && File(_pickedImagePath!).existsSync())
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.file(File(_pickedImagePath!), height: 100, width: double.infinity, fit: BoxFit.cover),
+              child: Image.file(
+                File(_pickedImagePath!),
+                height: 100,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             )
           else if (isAssetPath)
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.asset(widget.product.imagePath, height: 100, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _placeholder()),
+              child: Image.asset(
+                widget.product.imagePath,
+                height: 100,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _placeholder(),
+              ),
             )
           else
             _placeholder(),
@@ -422,7 +550,11 @@ class _EditProductSheetState extends State<_EditProductSheet> {
                   onPressed: () => _pickImage(ImageSource.camera),
                   icon: const Icon(Icons.camera_alt, size: 18),
                   label: const Text('Camera'),
-                  style: OutlinedButton.styleFrom(foregroundColor: _primaryPurple, side: BorderSide(color: _primaryPurple.withOpacity(0.5)), padding: const EdgeInsets.symmetric(vertical: 10)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _primaryPurple,
+                    side: BorderSide(color: _primaryPurple.withOpacity(0.5)),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -431,7 +563,11 @@ class _EditProductSheetState extends State<_EditProductSheet> {
                   onPressed: () => _pickImage(ImageSource.gallery),
                   icon: const Icon(Icons.photo_library, size: 18),
                   label: const Text('Gallery'),
-                  style: OutlinedButton.styleFrom(foregroundColor: _primaryPurple, side: BorderSide(color: _primaryPurple.withOpacity(0.5)), padding: const EdgeInsets.symmetric(vertical: 10)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _primaryPurple,
+                    side: BorderSide(color: _primaryPurple.withOpacity(0.5)),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
                 ),
               ),
             ],
@@ -442,10 +578,17 @@ class _EditProductSheetState extends State<_EditProductSheet> {
   }
 
   Widget _placeholder() => Container(
-        height: 100,
-        decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(10)),
-        child: Icon(Icons.add_photo_alternate, size: 40, color: Colors.grey.shade500),
-      );
+    height: 100,
+    decoration: BoxDecoration(
+      color: Colors.grey.shade200,
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Icon(
+      Icons.add_photo_alternate,
+      size: 40,
+      color: Colors.grey.shade500,
+    ),
+  );
 }
 
 class _RemoveProductTab extends StatelessWidget {
@@ -457,7 +600,10 @@ class _RemoveProductTab extends StatelessWidget {
         final products = ProductProvider.instance.products;
         if (products.isEmpty) {
           return Center(
-            child: Text('No products to remove. Add products first.', style: TextStyle(fontSize: 15, color: Colors.grey.shade600)),
+            child: Text(
+              'No products to remove. Add products first.',
+              style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+            ),
           );
         }
         return ListView.builder(
@@ -475,16 +621,29 @@ class _RemoveProductTab extends StatelessWidget {
                     title: const Text('Remove product?'),
                     content: Text('Remove "${p.title}"?'),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Cancel'),
+                      ),
                       TextButton(
                         onPressed: () {
                           ProductProvider.instance.removeProduct(p.id);
                           Navigator.pop(ctx);
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Product removed'), backgroundColor: Colors.orange, behavior: SnackBarBehavior.floating),
+                            const SnackBar(
+                              content: Text('Product removed'),
+                              backgroundColor: Colors.orange,
+                              behavior: SnackBarBehavior.floating,
+                            ),
                           );
                         },
-                        child: Text('Remove', style: TextStyle(color: Colors.red.shade600, fontWeight: FontWeight.w600)),
+                        child: Text(
+                          'Remove',
+                          style: TextStyle(
+                            color: Colors.red.shade600,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -506,12 +665,24 @@ Widget _buildProductImage(String path, double width, double height) {
     child: Icon(Icons.image_not_supported, color: Colors.grey.shade500),
   );
   if (path.startsWith('assets/')) {
-    return Image.asset(path, width: width, height: height, fit: BoxFit.cover, errorBuilder: (_, __, ___) => errorWidget);
+    return Image.asset(
+      path,
+      width: width,
+      height: height,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => errorWidget,
+    );
   }
   try {
     final file = File(path);
     if (file.existsSync()) {
-      return Image.file(file, width: width, height: height, fit: BoxFit.cover, errorBuilder: (_, __, ___) => errorWidget);
+      return Image.file(
+        file,
+        width: width,
+        height: height,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => errorWidget,
+      );
     }
   } catch (_) {}
   return errorWidget;
@@ -538,7 +709,13 @@ class _ProductCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade100),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 8, offset: const Offset(0, 2))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -558,16 +735,32 @@ class _ProductCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(product.title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: 'open sans bold')),
+                      Text(
+                        product.title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'open sans bold',
+                        ),
+                      ),
                       const SizedBox(height: 4),
-                      Text(product.price, style: TextStyle(fontSize: 14, color: Colors.grey.shade600)),
+                      Text(
+                        product.price,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
                     ],
                   ),
                 ),
                 if (showDelete && onDelete != null)
                   IconButton(
                     onPressed: onDelete,
-                    icon: Icon(Icons.delete_outline, color: Colors.red.shade400),
+                    icon: Icon(
+                      Icons.delete_outline,
+                      color: Colors.red.shade400,
+                    ),
                   ),
                 if (!showDelete && onTap != null)
                   Icon(Icons.edit_outlined, size: 22, color: _primaryPurple),

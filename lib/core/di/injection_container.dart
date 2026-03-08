@@ -9,6 +9,7 @@ import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/get_user_by_email_usecase.dart';
 import '../../domain/usecases/update_password_usecase.dart';
+import '../../domain/usecases/restore_session_from_biometric_usecase.dart';
 
 class InjectionContainer {
   static final InjectionContainer _instance = InjectionContainer._internal();
@@ -25,6 +26,7 @@ class InjectionContainer {
   GetCurrentUserUseCase? _getCurrentUserUseCase;
   GetUserByEmailUseCase? _getUserByEmailUseCase;
   UpdatePasswordUseCase? _updatePasswordUseCase;
+  RestoreSessionFromBiometricUseCase? _restoreSessionFromBiometricUseCase;
   bool _isInitialized = false;
   
   bool get isInitialized => _isInitialized;
@@ -53,6 +55,7 @@ class InjectionContainer {
       _getCurrentUserUseCase = GetCurrentUserUseCase(_authRepository!);
       _getUserByEmailUseCase = GetUserByEmailUseCase(_authRepository!);
       _updatePasswordUseCase = UpdatePasswordUseCase(_authRepository!);
+      _restoreSessionFromBiometricUseCase = RestoreSessionFromBiometricUseCase(_authRepository!);
       print('Use cases initialized');
       
       _isInitialized = true;
@@ -112,5 +115,12 @@ class InjectionContainer {
       throw Exception('InjectionContainer not initialized. Call init() first.');
     }
     return _updatePasswordUseCase!;
+  }
+
+  RestoreSessionFromBiometricUseCase get restoreSessionFromBiometricUseCase {
+    if (!_isInitialized || _restoreSessionFromBiometricUseCase == null) {
+      throw Exception('InjectionContainer not initialized. Call init() first.');
+    }
+    return _restoreSessionFromBiometricUseCase!;
   }
 }

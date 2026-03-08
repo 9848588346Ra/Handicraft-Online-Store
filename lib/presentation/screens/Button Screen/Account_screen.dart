@@ -5,6 +5,8 @@ import 'package:handicraft_online_store/core/di/injection_container.dart';
 import 'package:handicraft_online_store/data/profile_provider.dart';
 import 'package:handicraft_online_store/domain/entities/user_entity.dart';
 import 'package:handicraft_online_store/data/admin_provider.dart';
+import 'package:handicraft_online_store/core/services/auto_brightness_service.dart';
+import 'package:handicraft_online_store/core/services/biometric_auth_service.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/about_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/admin_product_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/delivery_address_screen.dart';
@@ -12,8 +14,10 @@ import 'package:handicraft_online_store/presentation/screens/Button Screen/help_
 import 'package:handicraft_online_store/presentation/screens/Button Screen/my_details_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/Button Screen/orders_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/admin_login_screen.dart';
+import 'package:handicraft_online_store/presentation/screens/face_lock_verification_screen.dart';
 import 'package:handicraft_online_store/presentation/screens/login_screen.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:app_settings/app_settings.dart';
 
 const Color _primaryPurple = Color(0xFF5E35B1);
 const Color _lightBlue = Color(0xFFE3F2FD);
@@ -64,6 +68,7 @@ class _AccountScreenState extends State<AccountScreen> {
         } else if (InjectionContainer().isInitialized) {
           await InjectionContainer().logoutUseCase.call();
         }
+        await BiometricAuthService.instance.disableFaceLock();
         if (context.mounted) {
           Navigator.pushAndRemoveUntil(
             context,
@@ -91,6 +96,135 @@ class _AccountScreenState extends State<AccountScreen> {
       await ProfileProvider.instance.updateProfile(email: user.email, profileImagePath: picked.path);
       if (mounted) setState(() {});
     }
+  }
+
+  Future<void> _handleFaceLockOption(BuildContext context) async {
+    final container = InjectionContainer();
+    if (!container.isInitialized) await container.init();
+    final user = await container.getCurrentUserUseCase.call();
+    if (user == null || user.email.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please log in first to use Face Lock'), behavior: SnackBarBehavior.floating),
+        );
+      }
+      return;
+    }
+
+    final bio = BiometricAuthService.instance;
+    final isEnabled = await bio.isFaceLockEnabled();
+    if (isEnabled) {
+      final disable = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Face Lock'),
+          content: const Text('Face Lock is enabled. Do you want to disable it?'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+            TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Disable', style: TextStyle(color: _primaryPurple, fontWeight: FontWeight.w600))),
+          ],
+        ),
+      );
+      if (disable == true) {
+        await bio.disableFaceLock();
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Face Lock disabled'), backgroundColor: Colors.green, behavior: SnackBarBehavior.floating),
+          );
+        }
+      }
+      return;
+    }
+
+    if (context.mounted) {
+      final result = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute(
+          builder: (ctx) => FaceLockVerificationScreen(
+            isEnabling: true,
+            userEmail: user.email,
+            userName: user.name,
+          ),
+        ),
+      );
+      if (result == true && context.mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  void _showBrightnessDialog(BuildContext context) {
+    final svc = AutoBrightnessService.instance;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Brightness'),
+        content: const Text(
+          'If auto brightness doesn\'t work on your device, use these to adjust manually. For stronger dimming, enable "Modify system settings" in App Settings.',
+          style: TextStyle(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              AppSettings.openAppSettings();
+              Navigator.pop(ctx);
+            },
+            child: const Text('App Settings'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await svc.setLowBrightness();
+              if (ctx.mounted) {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(ctx).showSnackBar(
+                  const SnackBar(content: Text('Screen dimmed'), behavior: SnackBarBehavior.floating),
+                );
+              }
+            },
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.brightness_low, size: 20),
+                SizedBox(width: 8),
+                Text('Dim'),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              await svc.setFullBrightness();
+              if (ctx.mounted) {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(ctx).showSnackBar(
+                  const SnackBar(content: Text('Full brightness'), behavior: SnackBarBehavior.floating),
+                );
+              }
+            },
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.brightness_high, size: 20),
+                SizedBox(width: 8),
+                Text('Full'),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              await svc.resetBrightness();
+              if (ctx.mounted) {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(ctx).showSnackBar(
+                  const SnackBar(content: Text('Brightness reset'), behavior: SnackBarBehavior.floating),
+                );
+              }
+            },
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showImagePickerOptions(BuildContext context, UserEntity user) {
@@ -338,6 +472,8 @@ class _AccountScreenState extends State<AccountScreen> {
         if (result == true && mounted) setState(() {});
       }),
       _AccountOption(Icons.location_on_outlined, 'Delivery Address', 'Manage addresses', () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DeliveryAddressScreen()))),
+      _AccountOption(Icons.face_retouching_natural, 'Face Lock', 'Sign in with Face ID or fingerprint', () => _handleFaceLockOption(context)),
+      _AccountOption(Icons.brightness_6_outlined, 'Brightness', 'Dim or brighten screen manually', () => _showBrightnessDialog(context)),
       _AccountOption(Icons.help_outline, 'Help', 'FAQs & support', () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HelpScreen()))),
       _AccountOption(Icons.info_outline, 'About', 'App version & info', () => Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutScreen()))),
     ];

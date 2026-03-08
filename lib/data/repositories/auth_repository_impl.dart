@@ -74,4 +74,12 @@ class AuthRepositoryImpl implements AuthRepository {
     // await remoteDataSource.updatePassword(email, newPassword);
     throw UnimplementedError('Update password via API not yet implemented');
   }
+
+  @override
+  Future<void> restoreSessionFromBiometric(String email, String name) async {
+    final userModel = UserModel(name: name, email: email, password: '');
+    await localDataSource.saveUser(userModel);
+    await localDataSource.setCurrentUser(userModel);
+    await localDataSource.setLoggedIn(true);
+  }
 }

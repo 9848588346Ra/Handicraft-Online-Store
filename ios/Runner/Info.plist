@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Use Face ID to sign in quickly with Face Lock</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera is used for Face Lock to scan and verify your face</string>
 </dict>
 </plist>

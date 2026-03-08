@@ -7,7 +7,8 @@ plugins {
 
 android {
     namespace = "com.raj.batch35c_flutter.handicraft_online_store"
-    compileSdk = flutter.compileSdkVersion
+    // Adjusted to 34 to resolve google_mlkit_commons build issue
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -25,7 +26,8 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        // ensure targetSdk matches compileSdk so plugins build correctly
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
